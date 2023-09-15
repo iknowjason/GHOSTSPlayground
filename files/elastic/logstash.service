@@ -1,0 +1,13 @@
+[Unit]
+Description=Logstash Server
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/elastic/logstash-8.9.1
+ExecStart=/opt/elastic/logstash-8.9.1/bin/logstash -f /opt/elastic/logstash-8.9.1/config/logstash.conf
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

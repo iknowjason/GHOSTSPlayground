@@ -1,0 +1,13 @@
+[Unit]
+Description=Kibana Server
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/elastic/kibana-8.9.1
+ExecStart=/opt/elastic/kibana-8.9.1/bin/kibana
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

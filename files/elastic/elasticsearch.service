@@ -1,0 +1,14 @@
+[Unit]
+Description=Elasticsearch Server
+After=network.target
+
+[Service]
+LimitMEMLOCK=infinity
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/opt/elastic/elasticsearch-8.9.1
+ExecStart=/opt/elastic/elasticsearch-8.9.1/bin/elasticsearch
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
