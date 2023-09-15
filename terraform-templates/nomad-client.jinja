@@ -1,0 +1,7 @@
+{
+      name = "${path.module}/files/windows/nomad.ps1.tpl"
+      variables = {
+        s3_bucket = "${aws_s3_bucket.staging.id}"
+        region    = var.region
+      }
+},

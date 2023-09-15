@@ -1,0 +1,10 @@
+    {
+      name = "${path.module}/files/windows/winlogbeat.ps1.tpl"
+      variables = {
+        s3_bucket     = "${aws_s3_bucket.staging.id}"
+        region        = var.region
+        winlogbeat_config = var.winlogbeat_config
+        winlogbeat_zip    = var.winlogbeat_zip
+        ip_address        = aws_instance.elk_server.private_ip
+      }
+    },

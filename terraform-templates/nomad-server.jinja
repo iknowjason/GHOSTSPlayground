@@ -1,0 +1,275 @@
+locals {
+  retry_join = "provider=aws tag_key=NomadJoinTag tag_value=auto-join"
+  nomad_hcl     = filebase64("${path.module}/files/nomad/nomad.hcl")
+  nomad_service = filebase64("${path.module}/files/nomad/nomad.service")
+}
+
+variable "name" {
+  description = "Prefix used to name various infrastructure components. Alphanumeric characters only."
+  default     = "nomad"
+}
+
+variable "server_instance_type" {
+  description = "The AWS instance type to use for servers."
+  default     = "t2.micro"
+}
+
+variable "server_count" {
+  description = "The number of servers to provision."
+  default     = "3"
+}
+
+variable "root_block_device_size" {
+  description = "The volume size of the root block device."
+  default     = 16
+}
+
+variable "nomad_version" {
+  description = "The version of the Nomad binary to install."
+  default     = "1.5.0"
+}
+resource "aws_security_group" "nomad_ui_ingress" {
+  name   = "${var.name}-ui-ingress"
+  vpc_id = aws_vpc.operator.id
+
+  # Nomad
+  ingress {
+    from_port       = 4646
+    to_port         = 4646
+    protocol        = "tcp"
+    cidr_blocks     = [local.src_ip]
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "ssh_ingress" {
+  name   = "${var.name}-ssh-ingress"
+  vpc_id = aws_vpc.operator.id
+
+  # SSH
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [local.src_ip]
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "allow_all_internal" {
+  name   = "${var.name}-allow-all-internal"
+  vpc_id = aws_vpc.operator.id
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = [var.vpc_cidr]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    self        = true
+  }
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent      = true
+  owners           = ["099720109477"]
+
+  filter {
+    name   = "name"
+    #values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+resource "aws_instance" "nomad_server" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.server_instance_type
+  subnet_id              = aws_subnet.user_subnet.id
+  key_name               = module.key_pair.key_pair_name 
+  vpc_security_group_ids = [aws_security_group.nomad_ui_ingress.id, aws_security_group.ssh_ingress.id, aws_security_group.allow_all_internal.id]
+  count                  = var.server_count
+
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = tls_private_key.private_key.private_key_pem
+    host        = self.public_ip
+  }
+
+  # NomadJoinTag is necessary for nodes to automatically join the cluster
+  tags = merge(
+    {
+      "Name" = "${var.name}-server-${count.index}"
+    },
+    {
+      "NomadJoinTag" = "auto-join"
+    },
+    {
+      "NomadType" = "server"
+    }
+  )
+
+  root_block_device {
+    volume_type           = "gp2"
+    volume_size           = var.root_block_device_size
+    delete_on_termination = "true"
+  }
+
+  user_data = templatefile("files/nomad/server-bootstrap.sh.tpl", {
+    server_count              = var.server_count
+    region                    = var.region
+    cloud_env                 = "aws"
+    retry_join                = local.retry_join
+    nomad_version             = var.nomad_version
+    nomad_hcl                 = local.nomad_hcl
+    nomad_service             = local.nomad_service
+  })
+  iam_instance_profile = aws_iam_instance_profile.instance_profile.name
+
+  metadata_options {
+    http_endpoint          = "enabled"
+    instance_metadata_tags = "enabled"
+  }
+}
+
+resource "aws_iam_instance_profile" "instance_profile" {
+  name_prefix = var.name
+  role        = aws_iam_role.instance_role.name
+}
+
+resource "aws_iam_role" "instance_role" {
+  name_prefix        = var.name
+  assume_role_policy = data.aws_iam_policy_document.instance_role.json
+}
+
+data "aws_iam_policy_document" "instance_role" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "auto_discover_cluster" {
+  name   = "${var.name}-auto-discover-cluster"
+  role   = aws_iam_role.instance_role.id
+  policy = data.aws_iam_policy_document.auto_discover_cluster.json
+}
+
+
+data "aws_iam_policy_document" "auto_discover_cluster" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:DescribeInstances",
+      "ec2:DescribeTags",
+      "autoscaling:DescribeAutoScalingGroups",
+    ]
+
+    resources = ["*"]
+  }
+}
+
+output "Nomad_server_details" {
+  value = <<CONFIGURATION
+------------------------
+Nomad UI: http://${aws_instance.nomad_server[0].public_ip}:4646/ui
+------------------------
+To auth to Nomad UI, copy and paste:
+export NOMAD_ADDR=http://${aws_instance.nomad_server[0].public_ip}:4646
+nomad acl bootstrap | grep -i secret | awk -F "=" '{print $2}' | xargs > nomad-management.token
+export NOMAD_TOKEN=$(cat nomad-management.token)
+------------------------
+Auth to Nomad UI: nomad ui -authenticate
+------------------------
+ssh: ssh -i ssh_key.pem ubuntu@${aws_instance.nomad_server[0].public_ip}  
+CONFIGURATION
+}
+
+data "aws_instances" "nomad_servers" {
+  filter {
+    name   = "tag:NomadType"
+    values = ["server"]
+  }
+}
+
+data "template_file" "nomad_client" {
+  template = "${file("${path.module}/files/nomad/nomad_client.hcl")}"
+
+  vars = {
+    retry_join_ips    = aws_instance.nomad_server[0].private_ip 
+  }
+}
+
+resource "aws_s3_object" "nomad_client_config" {
+  bucket = aws_s3_bucket.staging.id
+  key    = "nomad_client.hcl"
+  source = "${path.module}/output/nomad/nomad_client.hcl"
+  content_type = "text/plain" 
+
+  depends_on = [
+    local_file.nomad_client
+  ]
+}
+
+resource "local_file" "nomad_client" {
+  filename = "${path.module}/output/nomad/nomad_client.hcl"
+  content  = data.template_file.nomad_client.rendered
+}

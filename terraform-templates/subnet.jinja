@@ -1,0 +1,31 @@
+
+variable "{{ subnet_name_variable }}_name" {
+  default = "{{ subnet_name_variable }}"
+}
+
+variable "{{ subnet_name_variable }}_prefix" {
+  default = "{{ subnet_prefix_value }}"
+}
+    
+# Create the {{ subnet_name_variable }} subnet
+resource "aws_subnet" "{{ subnet_name_variable }}" {
+  
+  vpc_id  = aws_vpc.operator.id
+  cidr_block              = var.{{ subnet_name_variable }}_prefix
+  availability_zone       = data.aws_availability_zones.available.names[1]
+  map_public_ip_on_launch = true
+  
+  tags = {
+    Name = var.{{ subnet_name_variable }}_name
+  }
+  depends_on = [aws_vpc.operator]
+}
+
+output "{{ subnet_name_variable }}_id" {
+  value = aws_subnet.{{ subnet_name_variable }}.id
+}
+
+output "{{ subnet_name_variable }}_prefix" {
+  value = aws_subnet.{{ subnet_name_variable }}.cidr_block
+}
+

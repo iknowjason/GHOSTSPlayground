@@ -1,0 +1,169 @@
+# The terraform file that creates the Splunk Enterprise system
+variable "splunk_hostname" {
+  description = "The fqdn or hostname"
+  default     = "splunk.operatorlab.cloud"
+}
+variable "splunk_server_instance_type" {
+  description = "The AWS instance type to use for servers."
+  default     = "t2.large"
+}
+
+variable "splunk_root_block_device_size" {
+  description = "The volume size of the root block device."
+  default     =  100 
+}
+
+resource "aws_security_group" "splunk_ingress" {
+  name   = "splunk-ingress"
+  vpc_id = aws_vpc.operator.id
+
+  # Splunk admin console 
+  ingress {
+    from_port       = 8000 
+    to_port         = 8000 
+    protocol        = "tcp"
+    cidr_blocks     = [local.src_ip]
+  }
+
+  # Server port ssh
+  ingress {
+    from_port       = 22 
+    to_port         = 22 
+    protocol        = "tcp"
+    cidr_blocks     = [local.src_ip]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "splunk_ssh_ingress" {
+  name   = "splunk-ssh-ingress"
+  vpc_id = aws_vpc.operator.id
+
+  # SSH
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [local.src_ip]
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "splunk_allow_all_internal" {
+  name   = "splunk-allow-all-internal"
+  vpc_id = aws_vpc.operator.id
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = [var.vpc_cidr]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    self        = true
+  }
+}
+
+data "aws_ami" "splunk_server" {
+  most_recent      = true
+  owners           = ["679593333241"]
+
+  filter {
+    name   = "name"
+    values = ["splunk_AMI_9.*"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+}
+
+resource "aws_instance" "splunk_server" {
+  ami                    = data.aws_ami.splunk_server.id
+  instance_type          = var.splunk_server_instance_type
+  subnet_id              = aws_subnet.user_subnet.id
+  key_name               = module.key_pair.key_pair_name 
+  vpc_security_group_ids = [aws_security_group.splunk_ingress.id, aws_security_group.splunk_ssh_ingress.id, aws_security_group.splunk_allow_all_internal.id]
+
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = tls_private_key.private_key.private_key_pem
+    host        = self.public_ip
+  }
+
+  tags = {
+    "Name" = "splunk"
+  }
+
+  root_block_device {
+    volume_type           = "gp2"
+    volume_size           = var.splunk_root_block_device_size
+    delete_on_termination = "true"
+  }
+
+  user_data = templatefile("files/splunk/bootstrap.sh.tpl", {
+    s3_bucket                 = "${aws_s3_bucket.staging.id}" 
+    region                    = var.region
+    hostname                  = var.splunk_hostname
+  })
+
+}
+
+output "Splunk_server_details" {
+  value = <<CONFIGURATION
+-------
+Splunk Admin Console
+-------
+http://${aws_instance.splunk_server.public_ip}:8000
+
+Admin credentials
+-----------------
+admin:SPLUNK-${aws_instance.splunk_server.id}
+
+SSH
+---
+ssh -i ssh_key.pem ec2-user@${aws_instance.splunk_server.public_ip}  
+
+CONFIGURATION
+}

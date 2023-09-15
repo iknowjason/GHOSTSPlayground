@@ -1,0 +1,11 @@
+    {
+      name = "${path.module}/files/windows/sysmon.ps1.tpl"
+      variables = {
+        s3_bucket     = "${aws_s3_bucket.staging.id}"
+        region        = var.region
+        sysmon_config = local.sysmon_config
+        sysmon_zip    = local.sysmon_zip
+        dc_ip         = {{ dc_ip }} 
+        domain_join   = {{ domain_join }} 
+      }
+    },
