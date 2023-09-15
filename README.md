@@ -62,6 +62,8 @@ Description:  Installs a Breach and Attack Simulation Linux server.  The server 
 
 Note:  Still need to install the prelude headless pneuma for remote C2 control of the windows clients.
 
+Reference:  https://github.com/SecurityRiskAdvisors/VECTR
+
 ### Install SIEM (Splunk, Elastic)
 ```python3 operator.py --winclient 1 --siem [elk|splunk]```
 
