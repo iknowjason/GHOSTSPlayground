@@ -16,6 +16,13 @@ Tested with:
 Extra requirements:
 Faker:  ```pip3 install faker```
 
+Credentials Setup:
+Generate an IAM programmatic access key that has permissions to build resources in your AWS account.  Setup your .env to load these environment variables.  You can also use the direnv tool to hook into your shell and populate the .envrc.  Should look something like this in your .env or .envrc:
+```
+export AWS_ACCESS_KEY_ID="VALUE"
+export AWS_SECRET_ACCESS_KEY="VALUE"
+```
+
 ## Usage Examples
 
 The basic usage is like this:  
