@@ -85,7 +85,7 @@ Note:  The Splunk system is incomplete.  It installs the server software and boo
 - [ ] CloudWatch agent ship logs to S3 bucket
 - [ ] Ship logs to S3 bucket instead of SIEM, using EC2 agent
 - [x] Ghosts NPC User Simulation ✅ 2023-08-25
-- [ ] Prelude Operator headless C2 setup with pneuma
+- [x] Prelude Operator headless C2 setup with pneuma
 - [ ] Velociraptor server and endpoints
 - [ ] C2 support
 - [ ] Cloudtrail auditing and store in s3
