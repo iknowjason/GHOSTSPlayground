@@ -81,14 +81,14 @@ Note:  The Splunk system is incomplete.  It installs the server software and boo
 - [x] Nomad cluster / orchestration of red teaming (Wed) ✅ 2023-07-27
 - [x] BAS (Breach and Attack Simulation) box with Caldera Prelude Operator + VECTR ✅ 2023-08-25
 - [x] SIEM support (ELK) + winlogbeat log forwarding ✅ 2023-08-25
+- [ ] Cloudtrail auditing and store in S3
 - [ ] CloudWatch agent ship logs to S3 bucket
 - [ ] Ship logs to S3 bucket instead of SIEM, using EC2 agent
 - [x] Ghosts NPC User Simulation ✅ 2023-08-25
 - [x] Prelude Operator headless C2 setup with pneuma
 - [ ] Velociraptor server and endpoints
 - [ ] C2 support
-- [ ] Cloudtrail auditing and store in s3
 - [x] Mac system support
-- [ ] linux system support
+- [ ] Linux system support (Ubuntu, Amazon Linux)
 - [ ] Adversary system (Kali Linux and RedCloud OS)
 
