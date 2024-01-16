@@ -9,10 +9,10 @@ Function lwrite {
 }
 lwrite("Starting sysmon.ps1")
 
-# Set DNS resolver to google
-lwrite("Setting DNS resolver to public DNS")
-$myindex = Get-Netadapter -Name "Ethernet" | Select-Object -ExpandProperty IfIndex
-  Set-DNSClientServerAddress -InterfaceIndex $myindex -ServerAddresses "8.8.8.8"
+# Global settings for Powershell logging
+$module_logging = $false
+$script_block_logging = $false
+
 
 # Download Sysmon config xml
 $object_url = "https://" + "${s3_bucket}" + ".s3." + "${region}" + ".amazonaws.com/" + "${sysmon_config}"
@@ -99,7 +99,50 @@ lwrite("Copy the Sysmon configuration for SwiftOnSecurity to destination Sysmon 
 Copy-Item "C:\terraform\sysmonconfig-export.xml" -Destination "C:\terraform\Sysmon"
 
 # Install Sysmon
-lwrite("Install Sysmon")
-C:\terraform\Sysmon\sysmon.exe -accepteula -i C:\terraform\Sysmon\sysmonconfig-export.xml 
+# lwrite("Install Sysmon")
+#C:\terraform\Sysmon\sysmon.exe -accepteula -i C:\terraform\Sysmon\sysmonconfig-export.xml
+
+# Ensure that Sysmon installs and is running
+# Define the maximum number of attempts
+$maxAttempts = 5
+
+for ($i = 0; $i -lt $maxAttempts; $i++) {
+    $service = get-service "Sysmon"
+
+    if ($service.Status -eq "Running") {
+        lwrite("Sysmon is running")
+        break
+    }
+    else {
+        lwrite("Sysmon not running - Attempting start $i")
+
+        # Start
+        Start-Process "C:\terraform\Sysmon\sysmon.exe" -ArgumentList "-accepteula -i C:\terraform\Sysmon\sysmonconfig-export.xml" -Wait
+
+        Start-Sleep -Seconds 5
+    }
+}
+
+# Final check
+if ((get-service "Sysmon").Status -ne "Running") {
+    lwrite("Failed to start Sysmon service after attempts $maxAttempts")
+} else {
+    lwrite("Final Check - Sysmon is running")
+}
+
+if ($module_logging -eq $true) {
+  lwrite("Setting powershell module logging registry keys to enabled")
+  Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ModuleLogging" -Name "EnableModuleLogging" -Value "1"
+  Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ModuleLogging\ModuleNames" -Name "*" -Value "*"
+} else {
+  lwrite("Powershell module logging is not enabled")
+}
+
+if ($script_block_logging = $true) {
+  lwrite("Setting powershell script block logging registry keys to enabled")
+  Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value "1"
+} else {
+  lwrite("Powershell script block logging is not enabled")
+}
 
 lwrite("End of sysmon.ps1")

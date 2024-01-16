@@ -10,7 +10,7 @@ app.contact.ftp.server.dir: ftp_dir
 app.contact.ftp.user: caldera_user
 app.contact.gist: API_KEY
 app.contact.html: /weather
-app.contact.http: http://0.0.0.0:8888
+app.contact.http: http://0.0.0.0:${caldera_port}
 app.contact.slack.api_key: SLACK_TOKEN
 app.contact.slack.bot_id: SLACK_BOT_ID
 app.contact.slack.channel_id: SLACK_CHANNEL_ID
@@ -39,7 +39,7 @@ plugins:
 - sandcat
 - stockpile
 - training
-port: 8888
+port: ${caldera_port} 
 reports_dir: /tmp
 requirements:
   go:

@@ -63,6 +63,15 @@ parser.add_argument('-gh', '--ghosts', dest='ghosts_enable', action='store_true'
 # Add argument for enabling Breach and Attack Simulation (Caldera, VECTR, Prelude Operator
 parser.add_argument('-b', '--bas', dest='bas_enable', action='store_true')
 
+# Add argument for Mac OS systems
+parser.add_argument('-ma', '--macs', dest='macs_enable')
+
+# Add argument for Mac instance type
+parser.add_argument('-mi', '--mac_instance', dest='mac_instance', choices=['intel', 'm1', 'm2', 'm2pro'], help='Type of Mac instance')
+
+# Add argument for enabling S3 and CloudTrail
+parser.add_argument('--s3_cloudtrail', action='store_true', help='Enable S3 bucket for CloudTrail logging')
+
 # parse arguments
 args = parser.parse_args()
 
@@ -458,6 +467,10 @@ tbas_file = "bas.tf"
 telk_file = "elastic.tf"
 twinlogbeat_file = "winlogbeat.tf"
 tsplunk_file = "splunk.tf"
+tmac_file = "mac.tf"
+tmachost_file = "machost.tf"
+ts3_cloudtrail_file = "s3_cloudtrail.tf"
+
 
 
 # This is the base windows system client file name.  Will be replaced with the number of windows clients:  win1.tf, win2.tf
@@ -636,6 +649,9 @@ if __name__ == '__main__':
             logging.info('[+] Using AWS region: %s', default_region)
         else:
             print("[-] This is not a supported AWS region:", default_region)
+            print("[-] Currently supported:")
+            for i in supported_aws_regions:
+                print(i)
             print("[-] Check the supported_aws_regions if you need to add a new official AWS region")
             exit()
 
@@ -1098,7 +1114,6 @@ if __name__ == '__main__':
         admin_pass_var = "admin-password-" + this_hostname
         template_vars['admin_password_var_name'] = admin_pass_var
         template_vars['admin_password_default'] = admin_password
-
         # replace the variable join_domain for this Windows Client System
         template_vars['join_domain_var_name'] = "join-domain-" + this_hostname
         template_vars['join_domain_default'] = join_domain
@@ -1107,7 +1122,7 @@ if __name__ == '__main__':
         template_vars['endpoint_hostname_var_name'] = "endpoint_hostname-" + this_hostname
         template_vars['endpoint_hostname_default'] = this_hostname
 
-        # replace the ps template name for this Windows Client
+        #  the ps template name for this Windows Client
         template_vars['ps_template_var_name'] = "ps_template_" + this_hostname
 
         # replace the debug bootstrap script name for this Windows Client
@@ -1115,6 +1130,12 @@ if __name__ == '__main__':
 
         # replace the resource name for this Windows Client System
         template_vars['ec2_windows_virtual_machine_var_name'] = this_hostname
+
+        if args.s3_cloudtrail:
+            template_vars['iam_instance_profile'] = "iam_instance_profile = aws_iam_instance_profile.ec2_profile.name"
+            print("    [+] Using IAM Instance Profile for CloudTrail")
+        else:
+            template_vars['iam_instance_profile'] = ""
 
         # replace install_red if applicable
         if install_red:
@@ -1223,6 +1244,21 @@ if __name__ == '__main__':
     else:
         template_vars['install_red'] = ""
 
+    install_cloudwatch_template = '''
+    {
+      name = "${path.module}/files/windows/cloudwatch.ps1.tpl"
+      variables = {
+        s3_bucket = "${aws_s3_bucket.staging.id}"
+        region    = var.region
+      }
+    },
+    '''
+    # cloudwatch audit logs shipped to cloud trail / s3
+    if args.s3_cloudtrail:
+        template_vars['install_cloudwatch'] = install_cloudwatch_template
+    else:
+        template_vars['install_cloudwatch'] = ""
+
     # check for install sysmon
     domain_join = config_win_endpoint['join_domain'].lower()
     #temporary until building DC
@@ -1330,5 +1366,52 @@ if __name__ == '__main__':
             rendered_splunk_template = splunk_server_template.render()
             n = splunk_text_file.write(rendered_splunk_template)
             splunk_text_file.close()
+
+    ## Mac systems
+    if args.macs_enable:
+        print("[+] Mac Systems are enabled")
+        print("    [+] User requested to build %s Mac system(s)" % (args.macs_enable))
+
+        mac_template = env.get_template('mac.j2')
+
+        if args.mac_instance:
+            print("    [+] Mac instance type is set to: %s" % (args.mac_instance))
+        else:
+            print("    [+] Mac instance type is default: m2")
+
+        # Mapping from mac_instance values to Terraform values
+        instance_map = {
+            'intel': 'mac1.metal',
+            'm1': 'mac2.metal',
+            'm2': 'mac2-m2.metal',
+            'm2pro': 'mac2-m2pro.metal'
+        }
+
+        # Determine the mac_instance_type and filter_name
+        mac_instance_type = instance_map.get(args.mac_instance, 'mac2-m2.metal')
+        filter_name = 'arm64_mac' if args.mac_instance in ['m1', 'm2', 'm2pro'] else 'x86_64_mac'
+
+
+        mac_count = int(args.macs_enable)
+        for i in range(1, mac_count + 1):
+
+            filename = f"{tmac_file[:-3]}{i}.tf"
+            with open(filename, 'w') as file:
+                #output = mac_template.render(instance_num=i)
+                output = mac_template.render(instance_num=i, mac_instance_type=mac_instance_type,
+                                             filter_name=filter_name)
+                with open(filename, "w") as file:
+                    file.write(output)
+                print(f"    [+] Created Mac OS terraform file: {filename}")
+
+    # Create S3 bucket and CloudTrail if option is enabled
+    if args.s3_cloudtrail:
+        s3cloudtrail_text_file = open(ts3_cloudtrail_file, "w")
+        s3_cloudtrail_template = env.get_template('s3_cloudtrail.j2')
+        rendered_s3_cloudtrail_template = s3_cloudtrail_template.render()
+        n = s3cloudtrail_text_file.write(rendered_s3_cloudtrail_template)
+        print("[+] Creating the S3 Bucket CloudTrail terraform file: ", ts3_cloudtrail_file)
+        logging.info('[+] Creating the S3 Bucket CloudTrail terraform file: %s', ts3_cloudtrail_file)
+        s3cloudtrail_text_file.close()
 
 

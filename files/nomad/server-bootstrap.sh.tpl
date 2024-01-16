@@ -113,6 +113,7 @@ for i in {1..9}; do
         exit 0
     fi
 done
+echo "End of loop, rest of setup"
 
 export NOMAD_ADDR=http://$IP_ADDRESS:4646
 
@@ -131,3 +132,5 @@ echo "export NOMAD_ADDR=http://$IP_ADDRESS:4646" | sudo tee --append /home/$HOME
 echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre"  | sudo tee --append /home/$HOME_DIR/.bashrc
 
 # Server setup phase finish -----------------------------------
+
+echo "Finished setting up Nomad"

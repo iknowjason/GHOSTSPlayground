@@ -13,7 +13,7 @@ if (-not (Test-Path -Path $stagingdir)) {
 }
 
 # Set logfile and function for writing logfile
-$logfile = "C:\Terraform\bootstrap.log"
+$logfile = "C:\Terraform\bootstrap_log.log"
 Function lwrite {
     Param ([string]$logstring)
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
@@ -22,6 +22,32 @@ Function lwrite {
 }
 
 lwrite("Starting bootstrap powershell script")
+
+# add a local user and add them to Administrators
+$admin_username = "${admin_username}"
+$admin_password = "${admin_password}"
+$op = Get-LocalUser | Where-Object {$_.Name -eq $admin_username}
+if ( -not $op ) {
+  $secure_string = ConvertTo-SecureString $admin_password -AsPlainText -Force
+  New-LocalUser $admin_username -Password $secure_string
+  Add-LocalGroupMember -Group "Administrators" -Member $admin_username
+  lwrite("User created and added to the Administrators group: $admin_username")
+} else {
+  lwrite("User already exists: $admin_username")
+}
+
+# Set hostname
+lwrite("Checking to rename computer to ${hostname}")
+
+$current = $env:COMPUTERNAME
+
+if ($current -ne "${hostname}") {
+    Rename-Computer -NewName "${hostname}" -Force
+    lwrite("Renaming computer and reboot")
+    Restart-Computer -Force
+} else {
+    lwrite("Hostname already set correctly")
+}
 
 lwrite("Going to download from S3 bucket: ${s3_bucket}")
 $scriptFilenames = "${script_files}".split(",")
@@ -65,7 +91,7 @@ foreach ($filename in $scriptFilenames) {
 # ghosts client bootstrap processing for individual host
 $ghosts = "${install_ghosts}"
 lwrite("ghosts is $ghosts")
-if ( $ghosts ) {
+if ($ghosts -ne "0") {
   lwrite("Download and start ghosts client script for ${hostname}")
   $filename = "ghosts-bootstrap-" + "${hostname}" + ".ps1"
 
@@ -109,18 +135,6 @@ if ( $ghosts ) {
   lwrite("ghosts is not true")
 }
 
-# add a local user and add them to Administrators
-$admin_username = "${admin_username}"
-$admin_password = "${admin_password}"
-$op = Get-LocalUser | Where-Object {$_.Name -eq $admin_username}
-if ( -not $op ) {
-  $secure_string = ConvertTo-SecureString $admin_password -AsPlainText -Force
-  New-LocalUser $admin_username -Password $secure_string
-  Add-LocalGroupMember -Group "Administrators" -Member $admin_username
-  lwrite("User created and added to the Administrators group: $admin_username")
-} else {
-  lwrite("User already exists: $admin_username")
-}
+
 </powershell>
 <persist>true</persist>
-

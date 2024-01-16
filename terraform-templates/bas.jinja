@@ -1,8 +1,19 @@
+# Created with Operator Lab
 # The terraform file that creates the Breach and Attack Simulation Server system
-# VECTR and Caldera (at the moment)
+# VECTR, Caldera, and Operator Headless
 variable "vectr_port" {
   description = "Default listening port https for VECTR"
   default     = "8081"
+}
+
+variable "operator_email" {
+  description = "The email address for Prelude Operator Desktop UI client"
+  default     = "1b0743d7-6d2a-4963-abc4-388474423b78@desktop.prelude.org"
+}
+
+variable "caldera_port" {
+  description = "Default listening port http for Caldera"
+  default     = "9999"
 }
 
 variable "api_key_blue" {
@@ -45,6 +56,11 @@ variable "caldera_admin_password" {
   default     = "Caldera2023"
 }
 
+# the uuidgen token for operator client
+resource "random_uuid" "token" {
+
+}
+
 variable "prelude_filename" {
   description = "The Prelude Operator windows client filename"
   default     = "prelude-operator-1.7.1-x64.exe"
@@ -78,10 +94,10 @@ resource "aws_security_group" "bas_ingress" {
     cidr_blocks     = [local.src_ip]
   }
 
-  # Server port 8888 Caldera http console
+  # Server port Caldera http console
   ingress {
-    from_port       = 8888 
-    to_port         = 8888 
+    from_port       = var.caldera_port 
+    to_port         = var.caldera_port 
     protocol        = "tcp"
     cidr_blocks     = [local.src_ip]
   }
@@ -90,6 +106,22 @@ resource "aws_security_group" "bas_ingress" {
   ingress {
     from_port       = var.vectr_port 
     to_port         = var.vectr_port 
+    protocol        = "tcp"
+    cidr_blocks     = [local.src_ip]
+  }
+
+  # Server port 50051 prelude operator headless api 
+  ingress {
+    from_port       = "50051" 
+    to_port         = "50051" 
+    protocol        = "tcp"
+    cidr_blocks     = [local.src_ip]
+  }
+
+  # Server port 8888 prelude operator headless http 
+  ingress {
+    from_port       = "8888"
+    to_port         = "8888"
     protocol        = "tcp"
     cidr_blocks     = [local.src_ip]
   }
@@ -222,7 +254,7 @@ output "BAS_server_details" {
 -------
 Caldera Console
 -------
-http://${aws_instance.bas_server.public_ip}:8888  
+http://${aws_instance.bas_server.public_ip}:${var.caldera_port}
 
 Caldera Console Credentials
 -------------------
@@ -247,6 +279,12 @@ VECTR Credentials
 -----------------
 admin:11_ThisIsTheFirstPassword_11
 
+Operator Headless Prelude Desktop UI
+-----------------
+IP: ${aws_instance.bas_server.public_ip} 
+Token: ${random_uuid.token.result}
+Email: ${var.operator_email}  
+
 CONFIGURATION
 }
 
@@ -255,6 +293,15 @@ resource "aws_s3_object" "caldera_service_config" {
   key    = "caldera.service"
   source = "${path.module}/files/bas/caldera.service"
   content_type = "text/plain"
+}
+
+resource "aws_s3_object" "operator_service_config" {
+  bucket = aws_s3_bucket.staging.id
+  key    = "operator.service"
+  source = "${path.module}/output/bas/operator.service"
+  content_type = "text/plain"
+
+  depends_on = [local_file.operator_service]
 }
 
 resource "aws_s3_object" "caldera_default_yml" {
@@ -285,6 +332,20 @@ resource "local_file" "vectr_env" {
   filename = "${path.module}/output/bas/vectr_env"
 }
 
+resource "local_file" "operator_service" {
+  content  = data.template_file.operator_service.rendered
+  filename = "${path.module}/output/bas/operator.service"
+}
+
+data "template_file" "operator_service" {
+  template = file("${path.module}/files/bas/operator.service.tpl")
+
+  vars = {
+    token            = random_uuid.token.result
+    operator_email   = var.operator_email 
+  }
+}
+
 data "template_file" "caldera_local_yml" {
   template = file("${path.module}/files/bas/local.yml.tpl")
 
@@ -297,6 +358,7 @@ data "template_file" "caldera_local_yml" {
     caldera_admin_password  = var.caldera_admin_password
     red_username            = var.red_username
     red_password            = var.red_password
+    caldera_port            = var.caldera_port
   }
 }
 
@@ -313,5 +375,33 @@ resource "aws_s3_object" "prelude_operator" {
   bucket = aws_s3_bucket.staging.id
   key    = var.prelude_filename
   source = "${path.module}/files/bas/${var.prelude_filename}"
+}
+
+data "archive_file" "abilities" {
+    type        = "zip"
+    source_dir  = "${path.module}/files/bas/abilities"
+    output_path = "${path.module}/output/bas/abilities.zip"
+}
+
+data "archive_file" "payloads" {
+    type        = "zip"
+    source_dir  = "${path.module}/files/bas/payloads"
+    output_path = "${path.module}/output/bas/payloads.zip"
+}
+
+resource "aws_s3_object" "abilities_zip" {
+    depends_on = [data.archive_file.abilities]
+    
+    bucket = aws_s3_bucket.staging.id
+    key    = "abilities.zip"
+    source = "${data.archive_file.abilities.output_path}"
+}
+
+resource "aws_s3_object" "payloads_zip" {
+    depends_on = [data.archive_file.payloads]
+    
+    bucket = aws_s3_bucket.staging.id
+    key    = "payloads.zip"
+    source = "${data.archive_file.payloads.output_path}"
 }
 

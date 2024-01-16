@@ -7,6 +7,7 @@ exec > >(sudo tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 
 echo "Start bootstrap script"
 sudo apt-get update -y
 sudo apt-get install net-tools -y
+sudo apt-get install unzip -y
 
 # Golang 1.19 install
 echo "Installing Golang 1.19"
@@ -26,6 +27,8 @@ sudo add-apt-repository ppa:deadsnakes/ppa --yes
 sudo apt install upx -y
 sudo apt install python3.9 -y
 sudo apt install python3-pip -y
+# Upgrade pyOpenSSL - weird issue only impacting AWS EC2 AMI images
+sudo pip3 install --upgrade pyOpenSSL
 
 # Downloading Caldera
 echo "Downloading Caldera"
@@ -68,10 +71,50 @@ do
     fi
 done
 
-cd caldera
+cd /opt/caldera
 sudo pip3 install -r requirements.txt
 cp /opt/caldera/caldera.service /etc/systemd/system/caldera.service
 cp /opt/caldera/local.yml /opt/caldera/conf/local.yml
+
+# Download abilities zip
+echo "Get abilities.zip"
+file="abilities.zip"
+object_url="https://${s3_bucket}.s3.${region}.amazonaws.com/$file"
+echo "Downloading s3 object url: $object_url"
+for i in {1..5}
+do
+    echo "Download attempt: $i"
+    curl "$object_url" -o /opt/caldera/abilities.zip
+
+    if [ $? -eq 0 ]; then
+        echo "Download successful."
+        break
+    else
+        echo "Download failed. Retrying..."
+    fi
+done
+# unzip abilities
+sudo unzip /opt/caldera/abilities.zip -d /opt/caldera/data/abilities/
+
+# Download payloads zip
+echo "Get payloads.zip"
+file="payloads.zip"
+object_url="https://${s3_bucket}.s3.${region}.amazonaws.com/$file"
+echo "Downloading s3 object url: $object_url"
+for i in {1..5}
+do
+    echo "Download attempt: $i"
+    curl "$object_url" -o /opt/caldera/payloads.zip
+
+    if [ $? -eq 0 ]; then
+        echo "Download successful."
+        break
+    else
+        echo "Download failed. Retrying..."
+    fi
+done
+# unzip payloads
+sudo unzip /opt/caldera/payloads.zip -d /opt/caldera/data/payloads/
 
 sudo chown -R caldera:caldera /opt/caldera
 sudo chmod 644 /etc/systemd/system/caldera.service
@@ -119,5 +162,36 @@ cp /opt/vectr/vectr_env /opt/vectr/.env
 # Start docker containers
 echo "Start vectr containers"
 sudo docker compose up -d 
+
+# Install Prelude Operator Headless
+mkdir /opt/prelude
+chmod 0755 /opt/prelude
+curl --location 'https://download.prelude.org/latest?arch=x64&platform=linux&variant=zip&edition=headless' -o /opt/prelude/headless.zip
+cd /opt/prelude
+unzip headless.zip
+# Get operator.service 
+echo "Get operator.service"
+file="operator.service"
+object_url="https://${s3_bucket}.s3.${region}.amazonaws.com/$file"
+echo "Downloading s3 object url: $object_url"
+for i in {1..5}
+do
+    echo "Download attempt: $i"
+    curl "$object_url" -o /opt/prelude/operator.service
+
+    if [ $? -eq 0 ]; then
+        echo "Download successful."
+        break
+    else
+        echo "Download failed. Retrying..."
+    fi
+done
+
+# copy service file
+cp /opt/prelude/operator.service /etc/systemd/system/operator.service
+sudo chmod 644 /etc/systemd/system/operator.service
+sudo systemctl daemon-reload
+sudo systemctl enable operator 
+sudo systemctl start operator 
 
 echo "End of bootstrap script"

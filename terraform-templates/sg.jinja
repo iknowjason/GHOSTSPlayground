@@ -1,6 +1,6 @@
 # Thanks to @christophetd and his Github.com/Adaz project for this little code
 data "http" "firewall_allowed" {
-  url = "http://ifconfig.me"
+  url = "http://ifconfig.so"
 }
 
 locals {
@@ -10,7 +10,7 @@ locals {
 
 resource "aws_security_group" "operator_velocihelk" {
   name        = "operator_helk_security_group"
-  description = "Allow Velociraptor and HELK traffic"
+  description = "Allow Velociraptor and ELK traffic"
   vpc_id      = aws_vpc.operator.id 
   ingress {
     from_port   = -1 

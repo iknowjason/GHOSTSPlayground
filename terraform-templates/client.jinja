@@ -42,6 +42,8 @@ resource "aws_instance" "{{ ec2_windows_virtual_machine_var_name }}" {
     aws_security_group.operator_windows.id
   ]
 
+  {{ iam_instance_profile }}
+  
   root_block_device {
     volume_size           = 30
   }
@@ -62,7 +64,6 @@ data "template_file" "{{ ps_template_var_name }}" {
     join_domain               = var.{{ join_domain_var_name }} ? 1 : 0
     install_sysmon            = {{ install_sysmon }} ? 1 : 0
     install_red               = {{ install_red }} ? 1 : 0
-    #install_agent             = {{ install_agent }} ? 1 : 0
     install_ghosts            = {{ install_ghosts }} ? 1 : 0
     install_prelude           = {{ install_prelude }} ? 1 : 0
     auto_logon_domain_user    = {{ auto_logon_setting }} ? 1 : 0
