@@ -1,0 +1,112 @@
+# Build Mac {{ instance_num }} 
+
+variable "mac_instance_type{{ instance_num }}" {
+  default = "{{ mac_instance_type }}"
+}
+
+resource "aws_ec2_host" "operator_mac_host{{ instance_num }}" {
+  instance_type     = var.mac_instance_type{{ instance_num }}
+  availability_zone = data.aws_availability_zones.available.names[1]
+}
+
+# Build security groups for this Mac
+resource "aws_security_group" "mac{{ instance_num }}_ingress" {
+  name   = "mac{{ instance_num }}-ingress"
+  vpc_id = aws_vpc.operator.id
+
+  # SSH
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [local.src_ip]
+  }
+
+  # Self
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  # Allow VPC all
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = [var.vpc_cidr]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+
+data "aws_ami" "macos{{ instance_num }}" {
+  most_recent      = true
+  owners = ["amazon"] # Amazon
+
+  filter {
+    name   = "name"
+    values = ["amzn-ec2-macos-13*"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  # Change filter value to 'x86_64_mac' for Apple Intel 
+  filter {
+    name = "architecture"
+    values = ["{{ filter_name }}"]
+  }
+
+}
+
+resource "aws_instance" "mac_instance{{ instance_num }}" {
+  ami           = data.aws_ami.macos{{ instance_num }}.id
+  host_id       = aws_ec2_host.operator_mac_host{{ instance_num }}.id 
+  instance_type = var.mac_instance_type{{ instance_num }} 
+  subnet_id     = aws_subnet.user_subnet.id
+  key_name      = module.key_pair.key_pair_name 
+  vpc_security_group_ids = [aws_security_group.mac{{ instance_num }}_ingress.id]
+
+  tags = {
+    Name = "mac{{ instance_num }}"
+  }
+
+  user_data = templatefile("files/mac/bootstrap.sh.tpl", {
+    s3_bucket                 = "${aws_s3_bucket.staging.id}"
+    region                    = var.region
+  })
+
+}
+output "mac_details_{{ instance_num }}" {
+  value = <<EOS
+-------------------------
+Virtual Machine ${aws_instance.mac_instance{{ instance_num }}.tags["Name"]}
+-------------------------
+Instance ID: ${aws_instance.mac_instance{{ instance_num }}.id}
+Instance Type: ${var.mac_instance_type{{ instance_num }}}
+Computer Name:  ${aws_instance.mac_instance{{ instance_num }}.tags["Name"]}
+Private IP: ${aws_instance.mac_instance1.private_ip}
+Public IP:  ${aws_instance.mac_instance{{ instance_num }}.public_ip}
+Public DNS: ${aws_instance.mac_instance{{ instance_num }}.public_dns}
+
+SSH Access - Mac {{ instance_num }}
+----------
+ssh -i ssh_key.pem ec2-user@${aws_instance.mac_instance{{ instance_num }}.public_dns}
+
+EOS
+}

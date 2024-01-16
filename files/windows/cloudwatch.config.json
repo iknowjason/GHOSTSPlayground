@@ -1,0 +1,52 @@
+{
+	"logs": {
+		"logs_collected": {
+			"windows_events": {
+				"collect_list": [
+					{
+						"event_format": "xml",
+						"event_levels": [
+							"INFORMATION",
+							"WARNING",
+							"ERROR",
+							"CRITICAL"
+						],
+						"event_name": "Security",
+						"log_group_class": "STANDARD",
+						"log_group_name": "Security",
+						"log_stream_name": "{instance_id}",
+						"retention_in_days": 14
+					},
+					{
+						"event_format": "xml",
+						"event_levels": [
+							"INFORMATION",
+							"WARNING",
+							"ERROR",
+							"CRITICAL"
+						],
+						"event_name": "Microsoft-Windows-Sysmon/Operational",
+						"log_group_class": "STANDARD",
+						"log_group_name": "Microsoft-Windows-Sysmon/Operational",
+						"log_stream_name": "{instance_id}",
+						"retention_in_days": 14
+					},
+					{
+						"event_format": "xml",
+						"event_levels": [
+							"INFORMATION",
+							"WARNING",
+							"ERROR",
+							"CRITICAL"
+						],
+						"event_name": "Microsoft-Windows-Powershell/Operational",
+						"log_group_class": "STANDARD",
+						"log_group_name": "Microsoft-Windows-Powershell/Operational",
+						"log_stream_name": "{instance_id}",
+						"retention_in_days": 14
+					}
+				]
+			}
+		}
+	}
+}
