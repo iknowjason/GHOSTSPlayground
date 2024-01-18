@@ -10,8 +10,8 @@ Function lwrite {
 lwrite("Starting sysmon.ps1")
 
 # Global settings for Powershell logging
-$module_logging = $false
-$script_block_logging = $false
+$module_logging = $true
+$script_block_logging = $true
 
 
 # Download Sysmon config xml
@@ -130,19 +130,112 @@ if ((get-service "Sysmon").Status -ne "Running") {
     lwrite("Final Check - Sysmon is running")
 }
 
-if ($module_logging -eq $true) {
-  lwrite("Setting powershell module logging registry keys to enabled")
-  Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ModuleLogging" -Name "EnableModuleLogging" -Value "1"
-  Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ModuleLogging\ModuleNames" -Name "*" -Value "*"
-} else {
-  lwrite("Powershell module logging is not enabled")
+# Begin registry changes for Powershell Module and Script Block logging
+if ($script_block_logging -eq $true -or $module_logging -eq $true) {
+  $regPathWindows = "HKLM:\Software\Wow6432Node\Policies\Microsoft\Windows\"
+  $maxAttempts = 10
+  $attempt = 0
+
+  while ($attempt -lt $maxAttempts) {
+    $attempt++
+    if (Test-Path -Path $regPathWindows) {
+        lwrite("Registry path Windows found")
+        break
+    } else {
+        lwrite("Registry path Windows not found on attempt $attempt")
+        Start-Sleep -Seconds 5
+    }
+  }
 }
 
-if ($script_block_logging = $true) {
+# Add Powershell registry path
+if ($script_block_logging -eq $true -or $module_logging -eq $true) {
+  $regpath = "HKLM:\Software\Wow6432Node\Policies\Microsoft\Windows\PowerShell"
+  New-Item $regpath -Force | Out-Null
+
+  $maxAttempts = 10
+  $attempt = 0
+  $regpathPowershell = "HKLM:\Software\Wow6432Node\Policies\Microsoft\Windows\PowerShell"
+  New-Item $regpathPowershell -Force | Out-Null
+  lwrite("Testing for $regpathPowershell")
+  while ($attempt -lt $maxAttempts) {
+    $attempt++
+    if (Test-Path -Path $regPathPowershell) {
+        lwrite("Registry path Powershell found")
+        break
+    } else {
+        lwrite("Registry path Powershell not found on attempt $attempt")
+        New-Item $regpath -Force | Out-Null
+        Start-Sleep -Seconds 5
+    }
+  }
+}
+
+if ($script_block_logging -eq $true) {
   lwrite("Setting powershell script block logging registry keys to enabled")
-  Set-ItemProperty -Path "HKLM:\Software\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" -Name "EnableScriptBlockLogging" -Value "1"
+
+  $maxAttempts = 10
+  $attempt = 0
+  $regpathScriptBlock = "HKLM:\Software\Wow6432Node\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging"
+  lwrite("Testing for $regpathScriptBlock")
+  while ($attempt -lt $maxAttempts) {
+      $attempt++
+      lwrite("Attempt: $attempt")
+      if (Test-Path -Path $regPathScriptBlock) {
+          lwrite("Registry path found for Script Block")
+          break
+      } else {
+          lwrite("Registry path Script Block not found on attempt $attempt")
+          New-Item $regpathScriptBlock -Force | Out-Null
+          Start-Sleep -Seconds 20
+      }
+  }
+  # Set registry keys
+  lwrite("Setting registry keys for EnableScriptBlockLogging")
+  New-ItemProperty -Path $regpathScriptBlock -Name "EnableScriptBlockLogging" -Value 1 -PropertyType DWord
+  New-ItemProperty -Path $regpathScriptBlock -Name "EnableScriptBlockInvocationLogging" -Value 1 -PropertyType DWord
 } else {
   lwrite("Powershell script block logging is not enabled")
+}
+
+$maxRetries = 5
+$retryCount = 0
+
+if ($module_logging -eq $true) {
+  $success = $false
+
+  while ($retryCount -lt $maxRetries -and -not $success) {
+    try {
+      lwrite("Setting PowerShell module logging registry keys to enabled $retryCount")
+
+      $regPathModule = "HKLM:\Software\Wow6432Node\Policies\Microsoft\Windows\PowerShell\ModuleLogging"
+      $regItem = New-Item $regPathModule -Force | Out-Null
+
+      if (Test-Path -Path $regPathModule) {
+
+        New-ItemProperty -Path $regPathModule -Name "EnableModuleLogging" -Value 1 -PropertyType DWord | Out-Null
+        $regPathModuleNames = "HKLM:\Software\Wow6432Node\Policies\Microsoft\Windows\PowerShell\ModuleLogging\ModuleNames"
+        New-Item $regPathModuleNames -Force | Out-Null
+        Set-ItemProperty -Path $regPathModuleNames -Name "*" -Value "*" | Out-Null
+        $success = $true
+        break
+
+      } else {
+        throw "Failed to create the registry path."
+      }
+    } catch {
+      lwrite("Attempt failed: $retryCount")
+      Start-Sleep -Seconds 2
+    }
+
+    $retryCount++
+  }
+
+  if (-not $success) {
+    lwrite("Failed to set PowerShell module logging registry keys after $maxRetries attempts")
+  }
+} else {
+    lwrite("PowerShell module logging is not enabled")
 }
 
 lwrite("End of sysmon.ps1")
