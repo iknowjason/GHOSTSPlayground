@@ -196,7 +196,7 @@ if ( $op -Contains $forest ){
 $mtime = Get-Date
 lwrite ("$mtime Download Azure AD Connect msi")
 # Download the Azure AD Connect msi
-$path = "C:\Users\${admin_username}\Desktop\AzureADConnect.msi"a
+$path = "C:\Users\${admin_username}\Desktop\AzureADConnect.msi"
 $uri = "https://download.microsoft.com/download/B/0/0/B00291D0-5A83-4DE7-86F5-980BC00DE05A/AzureADConnect.msi"
 if ( Test-Path $path ) {
   lwrite("$mtime File already exists: $path")
