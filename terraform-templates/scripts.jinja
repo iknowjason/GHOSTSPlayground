@@ -1,6 +1,8 @@
 ## Terraform for scripts to bootstrap
 locals {
-  templatefiles = [
+
+  # Windows systems 
+  templatefiles_win = [
     {{ install_red }}
     {{ install_sysmon }}
     {{ install_cloudwatch }}
@@ -10,25 +12,23 @@ locals {
     {{ install_winlogbeat }}
   ]
 
-  script_contents = [
-    for t in local.templatefiles : templatefile(t.name, t.variables)
+  script_contents_win = [
+    for t in local.templatefiles_win : templatefile(t.name, t.variables)
   ]
 
-  script_output_generated = [
-    for t in local.templatefiles : "${path.module}/output/windows/${replace(basename(t.name), ".tpl", "")}"
+  script_output_generated_win = [
+    for t in local.templatefiles_win : "${path.module}/output/windows/${replace(basename(t.name), ".tpl", "")}"
   ]
 
   # reference in the main user_data for each windows system
-  script_files = [
-    for tf in local.templatefiles :
+  script_files_win = [
+    for tf in local.templatefiles_win :
     replace(basename(tf.name), ".tpl", "")
   ]
 }
 
-resource "local_file" "generated_scripts" {
-
-  count = length(local.templatefiles)
-
-  filename = local.script_output_generated[count.index]
-  content  = local.script_contents[count.index]
+resource "local_file" "generated_scripts_win" {
+  count = length(local.templatefiles_win)
+  filename = local.script_output_generated_win[count.index]
+  content  = local.script_contents_win[count.index]
 }

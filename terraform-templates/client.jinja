@@ -75,7 +75,7 @@ data "template_file" "{{ ps_template_var_name }}" {
     admin_username            = var.{{ admin_username_var_name }}
     admin_password            = var.{{ admin_password_var_name }}
     ad_domain                 = "{{ ad_domain }}"
-    script_files              = join(",", local.script_files)
+    script_files              = join(",", local.script_files_win)
     windows_msi               = {{ setting_windows_msi }} 
     vclient_config            = {{ setting_vclient_config }} 
     winlogbeat_zip            = {{ setting_winlogbeat_zip }} 

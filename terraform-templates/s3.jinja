@@ -37,10 +37,10 @@ resource "aws_s3_bucket_public_access_block" "staging" {
 }
 
 resource "aws_s3_object" "template_objects" {
-  count  = length(local.templatefiles)
+  count  = length(local.templatefiles_win)
   bucket = aws_s3_bucket.staging.id
-  key    = "${replace(basename(local.templatefiles[count.index].name), ".tpl", "")}"
-  content = local.script_contents[count.index]
+  key    = "${replace(basename(local.templatefiles_win[count.index].name), ".tpl", "")}"
+  content = local.script_contents_win[count.index]
 }
     
 output "storage_bucket" {

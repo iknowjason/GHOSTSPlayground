@@ -4,6 +4,7 @@
 # Author:  Jason Ostrom
 
 import random
+import sys
 import argparse
 import os
 import subprocess
@@ -16,6 +17,7 @@ import os.path
 import linecache
 from jinja2 import Environment, FileSystemLoader
 from faker import Faker
+from RandomDataGenerators.RandomFunctions import random_pet_name
 
 ### Parse arguments first
 # argparser stuff
@@ -143,29 +145,16 @@ def check_cidr_subnet(subnet_cidr_str):
 
 def get_password(args):
 
-    #length of password
-    length = 10
+    # Generate a random pet password like this:  Pet1-pet2-123456
+    pet1 = random_pet_name(1)
+    pet1 = pet1.capitalize()
+    pet1 = pet1.strip()
+    pet2 = random_pet_name(1)
+    pet2 = pet2.lower()
+    pet2 = pet2.strip()
+    random_number = random.randint(100000, 999999)
 
-    lower = string.ascii_lowercase
-    upper = string.ascii_uppercase
-    num = string.digits
-    all = lower + upper + num
-
-    # create blank password string / array
-    password = []
-    # at least one lower
-    password.append(random.choice(lower))
-    # at least one upper
-    password.append(random.choice(upper))
-    # at least one number
-    password.append(random.choice(num))
-    for i in range(1, length - 2):
-        if len(password) < length:
-            password.append(random.choice(all))
-
-    random.shuffle(password)
-
-    final_random_password = ''.join(password)
+    final_random_password = f"{pet1}-{pet2}-{random_number}"
 
     if args.password_set:
         return args.password_set
@@ -543,7 +532,8 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='ranges.log', lev
 
 if __name__ == '__main__':
 
-    print("Starting RedCloud")
+    #print("Starting Operator Lab {sys.argv[0]")
+    print(f"Starting Operator Lab: {sys.argv[0]}")
 
     # get Local Admin
     default_input_admin = ""
@@ -582,7 +572,7 @@ if __name__ == '__main__':
         print("[+] Creating unique user list")
         logging.info('[+] Creating unique user list')
         while users_added < duser_count:
-            faker = faker()
+            faker = Faker()
             first = faker.unique.first_name()
             last = faker.unique.last_name()
             display_name = first + " " + last
@@ -597,7 +587,6 @@ if __name__ == '__main__':
                 user_dict['pass'] = default_aduser_password
                 all_ad_users.append(user_dict)
                 users_added += 1
-                # DEBUGprint("[+] Generated AD user:", display_name)
 
         print("[+] Number of users added into list: ", len(extra_users_list))
         logging.info('[+] Number of users added into list %d', len(extra_users_list))
@@ -943,11 +932,12 @@ if __name__ == '__main__':
     # Get the clients jinja template
     client_template = env.get_template('client.jinja')
 
-    print("[+] Building Windows Client System")
-    logging.info('[+] Building the Windows Client System')
-    print("  [+] Number of systems to build: ", win_count)
-    logging.info('[+] Number of systems to build: %s', win_count)
     if (win_count > 0):
+        print("[+] Building Windows Client System")
+        logging.info('[+] Building the Windows Client System')
+        print("  [+] Number of systems to build: ", win_count)
+        logging.info('[+] Number of systems to build: %s', win_count)
+
         print("    [+] Getting default configuration template for Windows Client System")
         logging.info('[+] Getting default configuration template for Windows Client System')
         hostname_base = config_win_endpoint['hostname_base']
@@ -1229,7 +1219,7 @@ if __name__ == '__main__':
     # template variables
     template_vars = {}
 
-    # check for install Red, temporary
+    # check for install Red
     install_red_template = '''
     {
       name = "${path.module}/files/windows/red.ps1.tpl"
@@ -1243,6 +1233,7 @@ if __name__ == '__main__':
         print("    [+] Adding red.ps1 as s3 object upload")
     else:
         template_vars['install_red'] = ""
+
 
     install_cloudwatch_template = '''
     {
@@ -1414,4 +1405,216 @@ if __name__ == '__main__':
         logging.info('[+] Creating the S3 Bucket CloudTrail terraform file: %s', ts3_cloudtrail_file)
         s3cloudtrail_text_file.close()
 
+    # The default AD Users
+    # The groups field is the AD Group that will be automatically created
+    # An OU will be auto-created based on the AD Group name, and the Group will have OU path set to it
+    default_ad_users = [
+        {
+            "name": "Lars Borgerson",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": get_password(args),
+            "domain_admin": "",
+            "groups": "IT"
+        },
+        {
+            "name": "Olivia Odinsdottir",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": get_password(args),
+            "domain_admin": "True",
+            "groups": "IT"
+        },
+        {
+            "name": "Liem Anderson",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": get_password(args),
+            "domain_admin": "",
+            "groups": "IT"
+        },
+        {
+            "name": "John Nilsson",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": get_password(args),
+            "domain_admin": "",
+            "groups": "IT"
+        },
+        {
+            "name": "Jason Lindqvist",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": get_password(args),
+            "domain_admin": "True",
+            "groups": "IT"
+        },
+    ]
+
+    # Parse the AD users to get one Domain Admin for bootstrapping systems
+    if args.dc_enable:
+        da_count = 0
+        for user in default_ad_users:
+
+            # Set up a dictionary to store name and password
+            user_dict = {'name': '', 'pass': ''}
+            user_dict['name'] = user['name']
+
+            if user['domain_admin'].lower() == 'true':
+                da_count += 1
+                names = user['name'].split()
+                default_winrm_username = names[0].lower() + names[1].lower()
+                default_winrm_password = user['password']
+                user_dict['pass'] = default_da_password
+            else:
+                user_dict['pass'] = default_aduser_password
+
+            # Append to all_ad_users
+            #all_ad_users.append(user_dict)
+            #print("all_ad_users: %s", len(all_ad_users))
+
+        if da_count >= 1:
+            pass
+        else:
+            print("[-] At least one Domain Admin in default_ad_users must be enabled")
+            exit()
+
+        # get the dc_ip if dc is enabled
+        if ad_vlan_count == 1:
+            # This should be the last octet
+            last_octet = "4"
+            elements = ad_subnet_prefix.split('.')
+            dc_ip = elements[0] + "." + elements[1] + "." + elements[2] + "." + last_octet
+        else:
+            print("[-] DC is enabled without a subnet assignment")
+            print("[-] Set a type of ad_vlan to one of the subnets")
+            exit()
+
+        # Build and write the dc.tf file
+
+        # get the dc jinja template
+        dc_template = env.get_template('dc.j2')
+
+        # Render the template
+        rendered_dc_template = dc_template.render()
+
+        # open the dc.tf
+        dc_text_file = open(tdc_file, "w")
+
+        # Initialize a dictionary to store all the template variables
+        template_vars_dc = {}
+
+        # render the template from dictionary of dc var templates
+        rendered_dc_template = dc_template.render(template_vars_dc)
+
+        # replace with AD subnet
+        template_vars_dc['ad_subnet_name'] = ad_subnet_name
+
+        # replace with DC IP Address
+        template_vars_dc['dc_ip'] = dc_ip
+
+        # replace with default domain for AD
+        template_vars_dc['default_domain'] = default_domain
+
+        # replace with WinRM Username
+        winrm_user = []
+        if args.user_csv:
+            winrm_user = get_winrm_user(args.user_csv)
+            winrm_username = winrm_user[0]
+            template_vars_dc['winrm_username'] = winrm_username
+        else:
+            #dc_string = dc_string.replace("WINRM_USERNAME", default_winrm_username)
+            template_vars_dc['winrm_username'] = default_winrm_username
+
+
+        # replace with WinRM Password
+        if args.user_csv:
+            winrm_password = winrm_user[1]
+            #dc_string = dc_string.replace("WINRM_PASSWORD", winrm_password)
+            template_vars_dc['winrm_password'] = winrm_password
+        else:
+            #dc_string = dc_string.replace("WINRM_PASSWORD", default_winrm_password)
+            template_vars_dc['winrm_password'] = default_winrm_password
+
+        # replace with local Admin Username
+        #dc_string = dc_string.replace("ADMIN_USERNAME", default_admin_username)
+        template_vars_dc['admin_username'] = default_admin_username
+
+        # replace with local Admin Password
+        #dc_string = dc_string.replace("ADMIN_PASSWORD", default_admin_password)
+        template_vars_dc['admin_password'] = default_admin_password
+
+        # render the template from dictionary of dc var templates
+        rendered_dc_template = dc_template.render(template_vars_dc)
+
+        # Write dc template to dc.tf file
+        n = dc_text_file.write(rendered_dc_template)
+        print("[+] Creating the DC terraform file: ", tdc_file)
+        dc_text_file.close()
+
+        ## if the user supplied their own csv file for AD import
+        if args.user_csv:
+            # copy the user supplied AD csv to the file that will be uploaded
+            print("[+] Copying the user supplied csv AD file: ", args.user_csv)
+            print("[+] To a new AD csv file: ", ad_users_csv)
+            with open(args.user_csv, 'r') as firstfile, open(ad_users_csv, 'w') as secondfile:
+                # read content from first file
+                for line in firstfile:
+                    # write content to second file
+                    secondfile.write(line)
+            firstfile.close()
+            secondfile.close()
+
+        # if user didn't supply, assume auto-generated
+        else:
+            # Open up the ad users csv file
+            print("[+] Creating users file with %s users: %s" % (len(all_ad_users), ad_users_csv))
+            logging.info('[+] Creating users file with %s users: %s', len(all_ad_users), ad_users_csv)
+
+            # open the ad users csv file
+            ad_csv = open(ad_users_csv, 'w')
+
+            # Create and write the first line of csv
+            line = "name,upn,password,groups,oupath,domain_admin"
+            ad_csv.write(line + '\n')
+
+            # loop through the default_ad_users
+            for user in default_ad_users:
+                full_name = user['name'].split(' ')
+                first = full_name[0]
+                last = full_name[1]
+                usernm = first.lower() + last.lower()
+                ou = user['ou']
+                password = user['password']
+                domain_admin = user['domain_admin']
+                groups = user['groups']
+
+                # Create line to write users csv
+                ou_split = default_domain.split('.')
+                if domain_admin.lower() != 'true':
+                    domain_admin = "False"
+                upn = usernm + "@" + default_domain
+                oupath = "OU=" + groups + ";" + "DC=" + ou_split[0] + ";DC=" + ou_split[1]
+                line = user['name'] + "," + upn + "," + password + "," + groups + "," + oupath + "," + domain_admin + '\n'
+                ad_csv.write(line)
+
+            # Loop through the extra_users_list
+            for user in extra_users_list:
+                full_name = user.split(' ')
+                first = full_name[0]
+                last = full_name[1]
+                usernm = first.lower() + last.lower()
+                password = default_aduser_password
+                domain_admin = ""
+                groups = random.choice(ad_groups)
+
+                # Create line to write users csv
+                ou_split = default_domain.split('.')
+                domain_admin = "False"
+                upn = usernm + "@" + default_domain
+                oupath = "OU=" + groups + ";" + "DC=" + ou_split[0] + ";DC=" + ou_split[1]
+                line = user + "," + upn + "," + password + "," + groups + "," + oupath + "," + domain_admin + '\n'
+                ad_csv.write(line)
+
+            # close ad cvs
+            ad_csv.close()
+
+    ###
+    # End of dc.tf creation
+    ###
 
