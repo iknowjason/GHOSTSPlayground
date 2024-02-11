@@ -77,7 +77,7 @@ Note:  The Splunk system is incomplete.  It installs the server software and boo
 - [x] Test install_red script to get Atomic Red Team, PurpleSharp installed ✅ 2023-07-25
 - [x] Test sysmon install scripts on windows ✅ 2023-07-25
 - [x] Build DC and AD DS
-- [ ] Domain Join on Windows Clients
+- [x] Domain Join on Windows Clients
 - [ ] Auto logon domain users using domain credentials
 - [x] Nomad cluster / orchestration of red teaming (Wed) ✅ 2023-07-27
 - [x] BAS (Breach and Attack Simulation) box with Caldera Prelude Operator + VECTR ✅ 2023-08-25
@@ -90,6 +90,6 @@ Note:  The Splunk system is incomplete.  It installs the server software and boo
 - [ ] Velociraptor server and endpoints
 - [ ] C2 support
 - [x] Mac system support
-- [ ] Linux system support (Ubuntu, Amazon Linux)
-- [ ] Adversary system (Kali Linux and RedCloud OS)
+- [ ] Linux system support (Ubuntu, Amazon Linux, Kali Linux, RedCloud OS)
+
 
