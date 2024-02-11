@@ -29,6 +29,7 @@ resource "aws_instance" "dc" {
   instance_type = "t2.small"
   key_name      = module.key_pair.key_pair_name
   subnet_id     = aws_subnet.{{ ad_subnet_name }}.id
+  private_ip     = "{{ dc_ip }}"
   associate_public_ip_address = true
 
   # From windows client below 
@@ -57,8 +58,8 @@ data "template_file" "ps_dc_template" {
   vars  = {
     hostname                  = var.dc_hostname
     script_files              = join(",", local.script_files_win)
-    #aadconnect_file          = var.azure_aadconnect_file
     s3_bucket                 = "${aws_s3_bucket.staging.id}"
+    ad_domain                 = "{{ default_domain }}"
     region                    = var.region
     ad_install_script         = var.ad_install_ps1 
     admin_username            = "{{ admin_username }}"

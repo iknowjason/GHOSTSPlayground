@@ -148,10 +148,11 @@ def get_password(args):
     # Generate a random pet password like this:  Pet1-pet2-123456
     pet1 = random_pet_name(1)
     pet1 = pet1.capitalize()
-    pet1 = pet1.strip()
+    pet1 = pet1.replace(" ", "")
+
     pet2 = random_pet_name(1)
     pet2 = pet2.lower()
-    pet2 = pet2.strip()
+    pet2 = pet2.replace(" ", "")
     random_number = random.randint(100000, 999999)
 
     final_random_password = f"{pet1}-{pet2}-{random_number}"
@@ -460,8 +461,6 @@ tmac_file = "mac.tf"
 tmachost_file = "machost.tf"
 ts3_cloudtrail_file = "s3_cloudtrail.tf"
 
-
-
 # This is the base windows system client file name.  Will be replaced with the number of windows clients:  win1.tf, win2.tf
 # Each Windows client system will have its own dedicated terraform file ~ Easier to use and understand
 twin_file = "win.tf"
@@ -532,7 +531,6 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='ranges.log', lev
 
 if __name__ == '__main__':
 
-    #print("Starting Operator Lab {sys.argv[0]")
     print(f"Starting Operator Lab: {sys.argv[0]}")
 
     # get Local Admin
@@ -561,6 +559,10 @@ if __name__ == '__main__':
 
     if args.user_count and args.user_csv:
         print("[-] Both --ad_users and --csv are enabled ~ Please choose one")
+        exit()
+
+    if not args.ad_domain and args.user_csv:
+        print("[-] When importing a custom CSV file, you must specify the AD Domain with --ad_domain")
         exit()
 
     if args.user_count:
@@ -604,8 +606,8 @@ if __name__ == '__main__':
         if retval:
             print("    [+] The file looks good")
         else:
-            print("    [+] Exit due to csv file not looking good")
-            exit()
+            print("    [-] Exit due to csv file not looking good")
+            quit()
 
     # Parsing the Windows client systems
     if not args.winclients_count:
@@ -642,7 +644,7 @@ if __name__ == '__main__':
             for i in supported_aws_regions:
                 print(i)
             print("[-] Check the supported_aws_regions if you need to add a new official AWS region")
-            exit()
+            quit()
 
     # Parse the AD users to get one Domain Admin for bootstrapping systems
     if args.dc_enable:
@@ -672,7 +674,7 @@ if __name__ == '__main__':
             pass
         else:
             print("[-] At least one Domain Admin in default_ad_users must be enabled")
-            exit()
+            quit()
 
     if install_sysmon_enabled == True:
         sysmon_endpoint_config = "true"
@@ -700,24 +702,24 @@ if __name__ == '__main__':
             print("[-] The Domain controller option must be enabled for Domain Join or Auto Logon Domain Users")
             print("[-] Current setting for join_domain: ", config_win_endpoint['join_domain'])
             print("[-] Current setting for auto_logon_domain_user: ", config_win_endpoint['auto_logon_domain_user'])
-            exit()
+            quit()
 
     # check to make sure config_win_endpoint is correct for true or false values
     if config_win_endpoint['join_domain'].lower() != 'false' and config_win_endpoint[
         'join_domain'].lower() != 'true':
         print("[-] Setting join_domain must be true or false")
-        exit()
+        quit()
     if config_win_endpoint['auto_logon_domain_user'].lower() != 'false' and config_win_endpoint[
         'auto_logon_domain_user'].lower() != 'true':
         print("[-] Setting auto_logon_domain_user must be true or false")
-        exit()
+        quit()
     if config_win_endpoint['install_sysmon'] != False and config_win_endpoint['install_sysmon'] != True:
         print(config_win_endpoint['install_sysmon'])
         print("[-] Setting install_sysmon must be true or false")
-        exit()
+        quit()
     if config_win_endpoint['install_red'] != False and config_win_endpoint['install_red'] != True:
         print("[-] Setting install_red must be true or false")
-        exit()
+        quit()
 
     ### Do some inspection of the subnets to make sure no duplicates
     for subnet in config_subnets:
@@ -806,7 +808,6 @@ if __name__ == '__main__':
     ## Get dc_ip if dc is enabled
     if args.dc_enable:
         if ad_vlan_count == 1:
-            # This is the last octet of the helk_ip
             last_octet = "4"
             elements = ad_subnet_prefix.split('.')
             dc_ip = elements[0] + "." + elements[1] + "." + elements[2] + "." + last_octet
@@ -927,7 +928,7 @@ if __name__ == '__main__':
         n = sysmon_text_file.write(sysmon_rendered_template)
         sysmon_text_file.close()
 
-    # client systems or "endpoints"
+    # Begin Windows client systems
 
     # Get the clients jinja template
     client_template = env.get_template('client.jinja')
@@ -1183,7 +1184,7 @@ if __name__ == '__main__':
 
         # increment the last octet for each new Windows Client
         last_octet_int += 1
-        ### End of build the Windows 10 Pro systems
+        ### End of build the Windows Client System
 
     # create the terraform for ghosts clients s3
     if win_count > 0:
@@ -1408,7 +1409,7 @@ if __name__ == '__main__':
     # The default AD Users
     # The groups field is the AD Group that will be automatically created
     # An OU will be auto-created based on the AD Group name, and the Group will have OU path set to it
-    default_ad_users = [
+    '''default_ad_users = [
         {
             "name": "Lars Borgerson",
             "ou": "CN=users,DC=rtc,DC=local",
@@ -1444,11 +1445,11 @@ if __name__ == '__main__':
             "domain_admin": "True",
             "groups": "IT"
         },
-    ]
+    ]'''
 
     # Parse the AD users to get one Domain Admin for bootstrapping systems
     if args.dc_enable:
-        da_count = 0
+        '''da_count = 0
         for user in default_ad_users:
 
             # Set up a dictionary to store name and password
@@ -1464,15 +1465,11 @@ if __name__ == '__main__':
             else:
                 user_dict['pass'] = default_aduser_password
 
-            # Append to all_ad_users
-            #all_ad_users.append(user_dict)
-            #print("all_ad_users: %s", len(all_ad_users))
-
         if da_count >= 1:
             pass
         else:
             print("[-] At least one Domain Admin in default_ad_users must be enabled")
-            exit()
+            exit()'''
 
         # get the dc_ip if dc is enabled
         if ad_vlan_count == 1:
@@ -1518,25 +1515,20 @@ if __name__ == '__main__':
             winrm_username = winrm_user[0]
             template_vars_dc['winrm_username'] = winrm_username
         else:
-            #dc_string = dc_string.replace("WINRM_USERNAME", default_winrm_username)
             template_vars_dc['winrm_username'] = default_winrm_username
 
 
         # replace with WinRM Password
         if args.user_csv:
             winrm_password = winrm_user[1]
-            #dc_string = dc_string.replace("WINRM_PASSWORD", winrm_password)
             template_vars_dc['winrm_password'] = winrm_password
         else:
-            #dc_string = dc_string.replace("WINRM_PASSWORD", default_winrm_password)
             template_vars_dc['winrm_password'] = default_winrm_password
 
         # replace with local Admin Username
-        #dc_string = dc_string.replace("ADMIN_USERNAME", default_admin_username)
         template_vars_dc['admin_username'] = default_admin_username
 
         # replace with local Admin Password
-        #dc_string = dc_string.replace("ADMIN_PASSWORD", default_admin_password)
         template_vars_dc['admin_password'] = default_admin_password
 
         # render the template from dictionary of dc var templates
