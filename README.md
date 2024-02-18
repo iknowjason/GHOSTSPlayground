@@ -78,7 +78,7 @@ Note:  The Splunk system is incomplete.  It installs the server software and boo
 - [x] Test sysmon install scripts on windows ✅ 2023-07-25
 - [x] Build DC and AD DS
 - [x] Domain Join on Windows Clients
-- [ ] Auto logon domain users using domain credentials
+- [x] Auto logon domain users using domain credentials
 - [x] Nomad cluster / orchestration of red teaming (Wed) ✅ 2023-07-27
 - [x] BAS (Breach and Attack Simulation) box with Caldera Prelude Operator + VECTR ✅ 2023-08-25
 - [x] SIEM support (ELK) + winlogbeat log forwarding ✅ 2023-08-25
