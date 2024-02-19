@@ -80,9 +80,6 @@ args = parser.parse_args()
 # Load the Jinja templates
 env = Environment(loader=FileSystemLoader('terraform-templates'))
 
-# Define this because it is needed for default passwords
-#default_input_password = ""
-
 ####
 # Functions
 ####
@@ -390,50 +387,8 @@ ad_groups = ["Marketing", "IT", "Legal", "Sales", "Executive", "Engineering"]
 # duplicate count for created AD users
 duplicate_count = 0
 
-# Extra AD users beyond the default in default_ad_users
 extra_users_list = []
 all_ad_users = []
-
-# The default AD Users
-# The groups field is the AD Group that will be automatically created
-# An OU will be auto-created based on the AD Group name, and the Group will have OU path set to it
-default_ad_users = [
-    {
-        "name":"Lars Borgerson",
-        "ou": "CN=users,DC=rtc,DC=local",
-        "password": get_password(args),
-        "domain_admin":"",
-        "groups":"IT"
-    },
-    {
-        "name":"Olivia Odinsdottir",
-        "ou": "CN=users,DC=rtc,DC=local",
-        "password": get_password(args),
-        "domain_admin":"True",
-        "groups":"IT"
-    },
-    {
-        "name":"Liem Anderson",
-        "ou": "CN=users,DC=rtc,DC=local",
-        "password": get_password(args),
-        "domain_admin":"",
-        "groups":"IT"
-    },
-    {
-        "name":"John Nilsson",
-        "ou": "CN=users,DC=rtc,DC=local",
-        "password": get_password(args),
-        "domain_admin":"",
-        "groups":"IT"
-    },
-    {
-        "name":"Jason Lindqvist",
-        "ou": "CN=users,DC=rtc,DC=local",
-        "password": get_password(args),
-        "domain_admin":"True",
-        "groups":"IT"
-    },
-]
 
 # Install sysmon
 install_sysmon_enabled = True
@@ -541,7 +496,6 @@ if __name__ == '__main__':
         logging.info('[+] Local Admin account name: %s', default_input_admin)
 
     # get input password
-    #default_input_password = ""
     if args.password_set:
         default_input_password = args.password_set
         print("[+] Password desired for all users:  ", default_input_password)
@@ -594,7 +548,6 @@ if __name__ == '__main__':
         logging.info('[+] Number of users added into list %d', len(extra_users_list))
         print("[+] Number of duplicate users filtered out: ", duplicate_count)
         logging.info('[+] Number of duplicate users filtered out: %s', duplicate_count)
-    ### End of extra AD Users
 
     ### Check the user supplied CSV for issues
     ### Check the file that is going to load Active Directory users, groups, OUs
@@ -646,11 +599,48 @@ if __name__ == '__main__':
             print("[-] Check the supported_aws_regions if you need to add a new official AWS region")
             quit()
 
+    default_ad_users = [
+        {
+            "name":"Lars Borgerson",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": default_aduser_password,
+            "domain_admin":"",
+            "groups":"IT"
+        },
+        {
+            "name":"Olivia Odinsdottir",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": default_da_password,
+            "domain_admin":"True",
+            "groups":"IT"
+        },
+        {
+            "name":"Liem Anderson",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": default_aduser_password,
+            "domain_admin":"",
+            "groups":"IT"
+        },
+        {
+            "name":"John Nilsson",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": default_aduser_password,
+            "domain_admin":"",
+            "groups":"IT"
+        },
+        {
+            "name":"Jason Lindqvist",
+            "ou": "CN=users,DC=rtc,DC=local",
+            "password": default_da_password,
+            "domain_admin":"True",
+            "groups":"IT"
+        },
+    ]
+
     # Parse the AD users to get one Domain Admin for bootstrapping systems
     if args.dc_enable:
         da_count = 0
         for user in default_ad_users:
-
             # Set up a dictionary to store name and password
             user_dict = {'name': '', 'pass': ''}
             user_dict['name'] = user['name']
@@ -659,16 +649,19 @@ if __name__ == '__main__':
                 da_count += 1
                 names = user['name'].split()
                 default_winrm_username = names[0].lower() + names[1].lower()
-                default_winrm_password = user['password']
+                #default_winrm_password = user['password']
+                default_winrm_password = default_da_password
 
                 # set password to default domain admin password
                 user_dict['pass'] = default_da_password
+
             else:
                 # set password to default ad user password
                 user_dict['pass'] = default_aduser_password
 
             # Append to all_ad_users
             all_ad_users.append(user_dict)
+
 
         if da_count >= 1:
             pass
@@ -692,6 +685,12 @@ if __name__ == '__main__':
     if args.auto_logon:
         print("[+] Auto Logon is set to true")
         logging.info('[+] Auto Logon is set to true')
+
+        # Auto logon requires DC and domain join
+        if not args.dc_enable or not args.domain_join:
+            print("[-] Auto Logon requires DC (-dc) and domain join (--domain_join) to be enabled")
+            quit()
+
         config_win_endpoint['auto_logon_domain_user'] = "true"
 
     ## Can only join the domain or auto logon domain users if dc enable
@@ -1036,16 +1035,11 @@ if __name__ == '__main__':
         # replace for siem_enable
         if args.siem_enable:
 
-            # replace windows msi for velociraptor client install
-            #template_vars['setting_windows_msi'] = "local.velociraptor_win_zip"
-            # Temporary until we get to velociraptor working
+
             template_vars['setting_windows_msi'] = '""'
             template_vars['setting_vclient_config'] = '""'
 
-            # replace velociraptor client config
-            #template_vars['setting_vclient_config'] = "local.vclient_config"
 
-            # replace winlogbeat zip
             template_vars['setting_winlogbeat_zip'] = "var.winlogbeat_zip"
 
             # replace winlogbeat config
@@ -1094,7 +1088,6 @@ if __name__ == '__main__':
 
             # replace the ad password for auto logon
             template_vars['endpoint_ad_password'] = password
-
 
         # replace the variable admin_username
         admin_user_var = "admin-username-" + this_hostname
