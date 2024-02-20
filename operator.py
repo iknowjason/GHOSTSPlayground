@@ -62,7 +62,7 @@ parser.add_argument('-no', '--nomad', dest='nomad_enable', action='store_true')
 # Add argument for enabling Ghosts NPC
 parser.add_argument('-gh', '--ghosts', dest='ghosts_enable', action='store_true')
 
-# Add argument for enabling Breach and Attack Simulation (Caldera, VECTR, Prelude Operator
+# Add argument for enabling Breach and Attack Simulation (Caldera and vectr.io)
 parser.add_argument('-b', '--bas', dest='bas_enable', action='store_true')
 
 # Add argument for Mac OS systems
@@ -73,6 +73,9 @@ parser.add_argument('-mi', '--mac_instance', dest='mac_instance', choices=['inte
 
 # Add argument for enabling S3 and CloudTrail
 parser.add_argument('--s3_cloudtrail', action='store_true', help='Enable S3 bucket for CloudTrail logging')
+
+# Add argument for velociraptor
+parser.add_argument('-vel', '--velociraptor', dest='velociraptor_enable', action='store_true')
 
 # parse arguments
 args = parser.parse_args()
@@ -396,6 +399,9 @@ install_sysmon_enabled = True
 # Install red team tools
 install_red = True
 
+# Velociraptor Server IP
+velociraptor_ip = ""
+
 # Names of the terraform files
 tmain_file = "main.tf"
 tproviders_file = "providers.tf"
@@ -407,6 +413,7 @@ tsysmon_file = "sysmon.tf"
 ts3_file = "s3.tf"
 tscripts_file = "scripts.tf"
 tnomad_file = "nomad.tf"
+tvel_file = "velociraptor.tf"
 tghosts_file = "ghosts.tf"
 tbas_file = "bas.tf"
 telk_file = "elastic.tf"
@@ -815,6 +822,19 @@ if __name__ == '__main__':
             print("[-] Set a type of ad_vlan to one of the subnets")
             exit()
 
+    ## Get velociraptor_ip if enabled
+    if args.velociraptor_enable:
+        if user_vlan_count == 1:
+            last_octet = "200"
+            elements = user_subnet_prefix.split('.')
+            velociraptor_ip = elements[0] + "." + elements[1] + "." + elements[2] + "." + last_octet
+            print("[+] Velociraptor server is enabled with IP: ", velociraptor_ip)
+
+        else:
+            print("[-] Velociraptor server is enabled without a subnet assignment")
+            print("[-] Set a type of user_vlan to one of the subnets")
+            exit()
+
     # Nomad orchestration
     if args.nomad_enable:
         print("[+] Nomad orchestration is enabled")
@@ -1127,11 +1147,11 @@ if __name__ == '__main__':
         else:
             template_vars['install_red'] = "false"
 
-        # replace install_prelude for Prelude Operator for Windows
+        # replace install_caldera for Caldera agent windows
         if args.bas_enable:
-            template_vars['install_prelude'] = "true"
+            template_vars['install_caldera'] = "true"
         else:
-            template_vars['install_prelude'] = "false"
+            template_vars['install_caldera'] = "false"
 
         # replace DC_IP WinRM, AD Domain if applicable
         if args.dc_enable and config_win_endpoint['join_domain'].lower() == 'true':
@@ -1213,7 +1233,26 @@ if __name__ == '__main__':
     # template variables
     template_vars = {}
 
-    # check for install Red
+    # check for install Velociraptor client
+    install_vel_template = '''
+    {
+      name = "${path.module}/files/windows/velociraptor.ps1.tpl"
+      variables = {
+        s3_bucket        = "${aws_s3_bucket.staging.id}"
+        region           = var.region
+        client_config    = var.vserver_config
+        client_uri       = local.vdownload_client
+        windows_msi      = local.msi_file
+      }
+    },
+    '''
+    if args.velociraptor_enable:
+        template_vars['install_velociraptor'] = install_vel_template
+        print("    [+] Adding velociraptor.ps1 as s3 object upload")
+    else:
+        template_vars['install_velociraptor'] = ""
+
+    # check for install Red Team Tools
     install_red_template = '''
     {
       name = "${path.module}/files/windows/red.ps1.tpl"
@@ -1246,7 +1285,6 @@ if __name__ == '__main__':
 
     # check for install sysmon
     domain_join = config_win_endpoint['join_domain'].lower()
-    #temporary until building DC
     dc_ip = '""'
     install_sysmon_template = env.get_template('install-sysmon.jinja')
     rendered_sysmon_template = install_sysmon_template.render(dc_ip=dc_ip,domain_join=domain_join)
@@ -1275,13 +1313,24 @@ if __name__ == '__main__':
     else:
         template_vars['install_nomad'] = ""
 
+    # Build Velociraptor Server
+    if args.velociraptor_enable:
+        print("[+] Velociraptor Server is enabled")
+        vel_text_file = open(tvel_file, "w")
+        vel_server_template = env.get_template('velociraptor.j2')
+        rendered_vel_server_template = vel_server_template.render(velociraptor_ip=velociraptor_ip)
+        n = vel_text_file.write(rendered_vel_server_template)
+        print("[+] Creating the velociraptor server terraform file: ", tvel_file)
+        logging.info('[+] Creating the velociraptor server terraform file: %s', tvel_file)
+        vel_text_file.close()
+
     if args.bas_enable:
-        install_prelude_template = env.get_template('prelude-client.jinja')
-        rendered_prelude_template = install_prelude_template.render()
-        template_vars['install_prelude'] = rendered_prelude_template
-        print("    [+] Adding prelude.ps1 as s3 object upload")
+        install_caldera_template = env.get_template('caldera-client.j2')
+        rendered_caldera_template = install_caldera_template.render()
+        template_vars['install_caldera'] = rendered_caldera_template
+        print("    [+] Adding caldera.ps1 as s3 object upload")
     else:
-        template_vars['install_prelude'] = ""
+        template_vars['install_caldera'] = ""
 
     # render from the template_vars dictionary
     rendered_scripts_template = scripts_template.render(template_vars)
@@ -1382,7 +1431,7 @@ if __name__ == '__main__':
 
             filename = f"{tmac_file[:-3]}{i}.tf"
             with open(filename, 'w') as file:
-                #output = mac_template.render(instance_num=i)
+
                 output = mac_template.render(instance_num=i, mac_instance_type=mac_instance_type,
                                              filter_name=filter_name)
                 with open(filename, "w") as file:
@@ -1598,6 +1647,8 @@ if __name__ == '__main__':
 
             # close ad cvs
             ad_csv.close()
+
+
 
     ###
     # End of dc.tf creation

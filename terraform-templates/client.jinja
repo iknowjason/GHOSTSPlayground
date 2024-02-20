@@ -65,7 +65,7 @@ data "template_file" "{{ ps_template_var_name }}" {
     install_sysmon            = {{ install_sysmon }} ? 1 : 0
     install_red               = {{ install_red }} ? 1 : 0
     install_ghosts            = {{ install_ghosts }} ? 1 : 0
-    install_prelude           = {{ install_prelude }} ? 1 : 0
+    install_caldera           = {{ install_caldera }} ? 1 : 0
     auto_logon_domain_user    = {{ auto_logon_setting }} ? 1 : 0
     dc_ip                     = "{{ dc_ip }}" 
     endpoint_ad_user          = "{{ endpoint_ad_user }}" 
