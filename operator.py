@@ -576,15 +576,6 @@ if __name__ == '__main__':
             print("    [-] Exit due to csv file not looking good")
             quit()
 
-    # Parsing the Linux systems
-    '''if not args.linux_count:
-        args.linux_count = 0
-    else:
-        print("[+] Number of Linux Systems desired: ", args.linux_count)
-        logging.info('[+] Number of Linux Systems desired: %s', args.linux_count)
-        print("    [+] Linux OS chosen:", args.linux_os)
-        logging.info('[+] Linux OS chosen: %s', args.linux_os)'''
-
     # Parsing the Windows client systems
     if not args.winclients_count:
         args.winclients_count = 0
