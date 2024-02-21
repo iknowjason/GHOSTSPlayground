@@ -90,6 +90,6 @@ Note:  The Splunk system is incomplete.  It installs the server software and boo
 - [x] Velociraptor server and endpoints
 - [ ] C2 support
 - [x] Mac system support
-- [ ] Linux system support (Ubuntu, Amazon Linux, Kali Linux, RedCloud OS)
+- [x] Linux system support (Ubuntu, Amazon Linux, Kali Linux, Debian, RHEL)
 
 
