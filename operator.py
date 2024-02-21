@@ -77,6 +77,13 @@ parser.add_argument('--s3_cloudtrail', action='store_true', help='Enable S3 buck
 # Add argument for velociraptor
 parser.add_argument('-vel', '--velociraptor', dest='velociraptor_enable', action='store_true')
 
+# Add argument for count of Linux systems
+parser.add_argument('-lin', '--linux', dest='linux_count', help='Number of Linux systems to build')
+
+# Add argument for Linux OS with default value "ubuntu" and restricted choices
+parser.add_argument('-lo', '--linux-os', default='ubuntu', choices=['ubuntu', 'debian', 'redhat', 'amazon', 'kali'], help='The Linux OS to build. Default is "ubuntu".')
+
+
 # parse arguments
 args = parser.parse_args()
 
@@ -569,10 +576,17 @@ if __name__ == '__main__':
             print("    [-] Exit due to csv file not looking good")
             quit()
 
+    # Parsing the Linux systems
+    '''if not args.linux_count:
+        args.linux_count = 0
+    else:
+        print("[+] Number of Linux Systems desired: ", args.linux_count)
+        logging.info('[+] Number of Linux Systems desired: %s', args.linux_count)
+        print("    [+] Linux OS chosen:", args.linux_os)
+        logging.info('[+] Linux OS chosen: %s', args.linux_os)'''
+
     # Parsing the Windows client systems
     if not args.winclients_count:
-        print("[+] Windows Client System: 0")
-        logging.info('[+] Windows Client Systems: 0')
         args.winclients_count = 0
     else:
         print("[+] Number of Windows Client Systems desired: ", args.winclients_count)
@@ -934,7 +948,7 @@ if __name__ == '__main__':
     ### sysmon section - If install_sysmon is true, write out a separate terraform file
     ### This allows sysmon to be installed on clients independent of any SIEM configuration
     if install_sysmon_enabled:
-        print("[+] Sysmon enabled - Creating sysmon configuration for clients to use",tsysmon_file)
+        print("[+] Creating sysmon configuration for clients to use",tsysmon_file)
 
         # get sysmon jinja template
         sysmon_template = env.get_template('sysmon.jinja')
@@ -1437,6 +1451,63 @@ if __name__ == '__main__':
                 with open(filename, "w") as file:
                     file.write(output)
                 print(f"    [+] Created Mac OS terraform file: {filename}")
+
+    # Build Generic linux systems
+    if args.linux_count:
+        linux_count_total = int(args.linux_count)
+
+        # Linux configuration map for building different Distros from Amazon AMI marketplace
+        linux_config_map = {
+            'ubuntu': {
+                'linux_owner': '099720109477',
+                'os_name_filter': 'ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*',
+                'connection_linux_user': 'ubuntu',
+            },
+            'debian': {
+                'linux_owner': '136693071363',
+                'os_name_filter': 'debian-10-amd64-*',
+                'connection_linux_user': 'admin',
+            },
+            'redhat': {
+                'linux_owner': '309956199498',
+                'os_name_filter': 'RHEL-8*_64*GP2',
+                'connection_linux_user': 'ec2-user',
+            },
+            'amazon': {
+                'linux_owner': '137112412989',
+                'os_name_filter': 'amzn2-ami-hvm-*-x86_64-ebs',
+                'connection_linux_user': 'ec2-user',
+            },
+            'kali': {
+                'linux_owner': '679593333241',
+                'os_name_filter': '*kali-last-snapshot-amd64-2023*',
+                'connection_linux_user': 'kali',
+            },
+        }
+
+        print("[+] Linux Systems are enabled")
+        print("    [+] User requested to build %s Linux system(s)" % (args.linux_count ))
+        for i in range(1, linux_count_total + 1):
+
+            linux_template = env.get_template('linux.j2')
+
+            linux_count = f"linux{i}"
+            config = linux_config_map.get(args.linux_os.lower(), linux_config_map['ubuntu'])
+
+            # Render the linux template using values from the config map
+            rendered_content = linux_template.render(
+                linux_count=linux_count,
+                linux_owner=config['linux_owner'],
+                os_name_filter=config['os_name_filter'],
+                connection_linux_user=config['connection_linux_user'],
+                os_name=args.linux_os
+            )
+
+            # Write the linux terraform file
+            tf_filename = f"{linux_count}.tf"
+            with open(tf_filename, 'w') as tf_file:
+                tf_file.write(rendered_content)
+                print(f"    [+] Created Linux OS {args.linux_os} terraform file: {tf_filename}")
 
     # Create S3 bucket and CloudTrail if option is enabled
     if args.s3_cloudtrail:
