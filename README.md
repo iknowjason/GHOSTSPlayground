@@ -87,7 +87,7 @@ Note:  The Splunk system is incomplete.  It installs the server software and boo
 - [x] Ship logs to S3 bucket instead of SIEM, using EC2 agent
 - [x] Ghosts NPC User Simulation ✅ 2023-08-25
 - [x] Prelude Operator headless C2 setup with pneuma
-- [ ] Velociraptor server and endpoints
+- [x] Velociraptor server and endpoints
 - [ ] C2 support
 - [x] Mac system support
 - [ ] Linux system support (Ubuntu, Amazon Linux, Kali Linux, RedCloud OS)
