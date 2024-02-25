@@ -83,6 +83,11 @@ parser.add_argument('-lin', '--linux', dest='linux_count', help='Number of Linux
 # Add argument for Linux OS with default value "ubuntu" and restricted choices
 parser.add_argument('-lo', '--linux-os', default='ubuntu', choices=['ubuntu', 'debian', 'redhat', 'amazon', 'kali'], help='The Linux OS to build. Default is "ubuntu".')
 
+parser.add_argument("--c2", dest='c2', type=str, choices=["none", "empire", "sliver"],
+                    help="Specify the C2 framework to use. Defaults to 'empire'.")
+
+parser.add_argument("--csp", dest='csp', type=str, choices=["aws", "azure", "digitalocean"],
+                    help="Specify the Cloud Service Provider to use for building C2")
 
 # parse arguments
 args = parser.parse_args()
@@ -501,6 +506,11 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='ranges.log', lev
 if __name__ == '__main__':
 
     print(f"Starting Operator Lab: {sys.argv[0]}")
+
+    # C2 and csp validation
+    if (args.c2 and not args.csp) or (args.csp and not args.c2):
+        print("[-] Both --c2 and --csp must be provided together")
+        quit()
 
     # get Local Admin
     default_input_admin = ""
@@ -1513,67 +1523,9 @@ if __name__ == '__main__':
     # The default AD Users
     # The groups field is the AD Group that will be automatically created
     # An OU will be auto-created based on the AD Group name, and the Group will have OU path set to it
-    '''default_ad_users = [
-        {
-            "name": "Lars Borgerson",
-            "ou": "CN=users,DC=rtc,DC=local",
-            "password": get_password(args),
-            "domain_admin": "",
-            "groups": "IT"
-        },
-        {
-            "name": "Olivia Odinsdottir",
-            "ou": "CN=users,DC=rtc,DC=local",
-            "password": get_password(args),
-            "domain_admin": "True",
-            "groups": "IT"
-        },
-        {
-            "name": "Liem Anderson",
-            "ou": "CN=users,DC=rtc,DC=local",
-            "password": get_password(args),
-            "domain_admin": "",
-            "groups": "IT"
-        },
-        {
-            "name": "John Nilsson",
-            "ou": "CN=users,DC=rtc,DC=local",
-            "password": get_password(args),
-            "domain_admin": "",
-            "groups": "IT"
-        },
-        {
-            "name": "Jason Lindqvist",
-            "ou": "CN=users,DC=rtc,DC=local",
-            "password": get_password(args),
-            "domain_admin": "True",
-            "groups": "IT"
-        },
-    ]'''
 
     # Parse the AD users to get one Domain Admin for bootstrapping systems
     if args.dc_enable:
-        '''da_count = 0
-        for user in default_ad_users:
-
-            # Set up a dictionary to store name and password
-            user_dict = {'name': '', 'pass': ''}
-            user_dict['name'] = user['name']
-
-            if user['domain_admin'].lower() == 'true':
-                da_count += 1
-                names = user['name'].split()
-                default_winrm_username = names[0].lower() + names[1].lower()
-                default_winrm_password = user['password']
-                user_dict['pass'] = default_da_password
-            else:
-                user_dict['pass'] = default_aduser_password
-
-        if da_count >= 1:
-            pass
-        else:
-            print("[-] At least one Domain Admin in default_ad_users must be enabled")
-            exit()'''
 
         # get the dc_ip if dc is enabled
         if ad_vlan_count == 1:
@@ -1710,9 +1662,60 @@ if __name__ == '__main__':
             # close ad cvs
             ad_csv.close()
 
-
-
     ###
     # End of dc.tf creation
     ###
+
+    # C2 setup and CSP used
+    if args.csp:
+        # Load the Cloud Service Provider (CSP) template file
+        csp_template_filename = f"c2-{args.csp}.j2"
+        csp_template = env.get_template(csp_template_filename)
+
+        # Get the C2 name
+        c2 = args.c2
+        if args.csp == 'digitalocean':
+            if c2 == 'empire':
+                # Set a special c2 script for empire on digital ocean Ubuntu
+                c2 = 'empire-do'
+
+        # Describe c2 host details
+        c2_hostd = ""
+        extra_c2_info = ""
+
+        if args.csp == 'aws':
+            if c2 == 'empire':
+                c2_hostd = 'Starkiller: http://${aws_instance.c2.public_dns}:${var.empire_default_port_aws}/index.html'
+                extra_c2_info = "Credentials: empireadmin:password123"
+            elif c2 == 'sliver':
+                c2_hostd = 'Sliver: ${aws_instance.c2.public_dns}:${var.sliver_default_port_aws}'
+                extra_c2_info = ""
+            else:
+                c2_hostd = 'Remote DNS: ${aws_instance.c2.public_dns}'
+                extra_c2_info = ""
+        elif args.csp == 'azure':
+            if c2 == 'empire':
+                c2_hostd = 'Starkiller: http://${azurerm_public_ip.c2.ip_address}:${var.empire_default_port}/index.html'
+                extra_c2_info = "Credentials: empireadmin:password123"
+            elif c2 == 'sliver':
+                c2_hostd = 'Sliver: ${azurerm_public_ip.c2.ip_address}:${var.sliver_default_port}'
+                extra_c2_info = ""
+        elif args.csp == 'digitalocean':
+            if c2 == 'empire-do':
+                c2_hostd = 'Starkiller: http://${digitalocean_droplet.c2.ipv4_address}:${var.empire_default_port_do}/index.html'
+                extra_c2_info = "Credentials: empireadmin:password123"
+            elif c2 == 'sliver':
+                c2_hostd = 'Sliver: ${digitalocean_droplet.c2.ipv4_address}:${var.sliver_default_port_do}'
+                extra_c2_info = ""
+
+        # Render the template, replace the correct script name for c2
+        rendered_csp_template = csp_template.render(c2_name=c2, c2_host_desc=c2_hostd, extra_info=extra_c2_info)
+
+        csp_terraform = f"c2-{args.csp}.tf"
+
+        with open(csp_terraform, 'w') as f:
+            f.write(rendered_csp_template)
+            print("[+] Creating the C2 csp terraform file: %s" % (csp_terraform))
+            print("    [+] Using script for C2: %s" % (c2))
+
 

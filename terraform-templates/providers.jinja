@@ -5,11 +5,27 @@ terraform {
       source = "hashicorp/aws"
       version = "4.61.0"
     }
+    azurerm = {
+      source = "hashicorp/azurerm"
+      version = "=3.13.0"
+    }
+    digitalocean = {
+      source = "digitalocean/digitalocean"
+    }
   }
 }
 
+
 provider "aws" {
   region 	= var.region 
+}
+
+provider "azurerm" {
+   features {}
+}
+
+provider "digitalocean" {
+  token = var.do_token
 }
 
 provider "random" {}
