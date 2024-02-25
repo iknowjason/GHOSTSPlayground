@@ -1,0 +1,126 @@
+# Created with Operator Lab
+# The terraform file that creates a C2 Linux server in Digital Ocean 
+
+variable "do_token" {
+  description = "DigitalOcean API token"
+}
+
+variable "sliver_default_port_do" {
+  default = "31337"
+}
+
+variable "empire_default_port_do" {
+  default = "1337"
+}
+
+variable "ssh_fingerprint" {
+  description = "Fingerprint of your SSH key"
+}
+
+variable "droplet_image" {
+  description = "Image identifier of the OS in DigitalOcean"
+  default     = "ubuntu-22-04-x64"
+}
+
+variable "droplet_region" {
+  description = "Droplet region identifier where the droplet will be created"
+  default     = "sfo3"
+}
+
+variable "droplet_size" {
+  description = "Droplet size identifier"
+  default     = "s-2vcpu-4gb"
+}
+
+resource "digitalocean_droplet" "c2" {
+  image              = var.droplet_image
+  name               = "c2"
+  region             = var.droplet_region
+  size               = var.droplet_size
+  backups            = true
+  monitoring         = true
+
+  user_data = data.template_file.c2.rendered
+
+  ssh_keys = [
+    var.ssh_fingerprint
+  ]
+}
+
+data "template_file" "c2" {
+  template = file("${path.module}/files/c2/{{ c2_name }}.sh.tpl")
+
+  vars = {
+  }
+}
+
+resource "local_file" "c2" {
+  # For inspecting the rendered bash script as it is loaded onto linux system
+  content = data.template_file.c2.rendered
+  filename = "${path.module}/output/linux/c2.sh"
+}
+
+resource "digitalocean_firewall" "c2" {
+  name = "only-allow-ssh-and-c2-traffic"
+
+  droplet_ids = [digitalocean_droplet.c2.id]
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = "22"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = var.sliver_default_port_do
+    #source_addresses = ["0.0.0.0/0", "::/0"]
+    source_addresses = [local.src_ip]
+  }
+
+  inbound_rule {
+    protocol         = "tcp"
+    port_range       = var.empire_default_port_do
+    #source_addresses = ["0.0.0.0/0", "::/0"]
+    source_addresses = [local.src_ip]
+  }
+
+  inbound_rule {
+    protocol         = "icmp"
+    source_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "tcp"
+    port_range            = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "udp"
+    port_range            = "1-65535"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+
+  outbound_rule {
+    protocol              = "icmp"
+    destination_addresses = ["0.0.0.0/0", "::/0"]
+  }
+}
+
+output "c2_system_details" {
+  value = <<EOS
+---------------------
+{{ c2_name }} details
+---------------------
+Public IP: ${digitalocean_droplet.c2.ipv4_address}
+Private IP: ${digitalocean_droplet.c2.ipv4_address_private}
+{{ c2_host_desc }}
+{{ extra_info }}
+
+SSH to {{ c2_name }} C2
+---------------
+ssh root@${digitalocean_droplet.c2.ipv4_address}
+
+EOS
+}

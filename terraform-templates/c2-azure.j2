@@ -1,0 +1,241 @@
+# Created with Operator Lab
+# The terraform file that creates a C2 Linux server in Azure
+
+variable "linux_admin_user" {
+  default = "ubuntu"
+}
+
+variable "sliver_default_port" {
+  default = "31337"
+}
+
+variable "empire_default_port" {
+  default = "1337"
+}
+
+variable "c2_private_ip" {
+  default = "10.100.30.4" 
+}
+
+variable "location" {
+  default = "eastus"
+}
+
+variable "resource_group_name" {
+  default = "OperatorLab"
+}
+
+# Specify the resource group
+resource "azurerm_resource_group" "c2" {
+  name     = "${var.resource_group_name}-${random_string.suffix.id}"
+  location = var.location
+}
+
+# Create the c2 server subnet
+resource "azurerm_subnet" "c2" {
+  name                 = "${var.resource_group_name}-c2-${random_string.suffix.id}"
+  resource_group_name  = "${var.resource_group_name}-${random_string.suffix.id}"
+  virtual_network_name = azurerm_virtual_network.c2.name
+  address_prefixes       = [var.c2_subnet-prefix]
+
+  depends_on = [azurerm_resource_group.c2]
+}
+
+resource "azurerm_subnet_network_security_group_association" "c2" {
+  subnet_id            = azurerm_subnet.c2.id
+  network_security_group_id = azurerm_network_security_group.c2.id
+  depends_on = [azurerm_resource_group.c2]
+}
+
+resource "azurerm_network_security_group" "c2" {
+  name                = "nsg-c2"
+  location            = var.location
+  resource_group_name = "${var.resource_group_name}-${random_string.suffix.id}"
+  security_rule {
+    name                       = "allow-ssh"
+    description                = "Allow SSH (SSH-In)"
+    priority                   = 101
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = local.src_ip
+    destination_address_prefix = "*"
+  }
+  security_rule {
+    name                       = "allow-${var.empire_default_port}"
+    description                = "Permit Default Empire"
+    priority                   = 102
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = var.empire_default_port 
+    source_address_prefix      = local.src_ip
+    destination_address_prefix = "*"
+  }
+  security_rule {
+    name                       = "allow-${var.sliver_default_port}"
+    description                = "Permit Default Sliver"
+    priority                   = 103
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = var.sliver_default_port 
+    source_address_prefix      = local.src_ip
+    destination_address_prefix = "*"
+  }
+  depends_on = [azurerm_resource_group.c2]
+}
+
+# Address space for the vnet
+variable "c2-address-space" {
+  default = "10.100.0.0/16"
+}
+
+# VNet Creation
+resource "azurerm_virtual_network" "c2" {
+  name                = "${var.resource_group_name}-${random_string.suffix.id}-vnet"
+  address_space       = [var.c2-address-space]
+  location            = var.location
+  resource_group_name = "${var.resource_group_name}-${random_string.suffix.id}"
+
+  depends_on = [azurerm_resource_group.c2]
+}
+
+variable "c2_subnet-prefix" {
+  default = "10.100.30.0/24"
+}
+
+resource "azurerm_public_ip" "c2" {
+  name                    = "c2-public-ip-${random_string.suffix.id}"
+  location                = var.location
+  resource_group_name     = "${var.resource_group_name}-${random_string.suffix.id}"
+  allocation_method       = "Static"
+  idle_timeout_in_minutes = 30
+
+  depends_on = [azurerm_resource_group.c2]
+}
+
+resource "azurerm_network_interface" "c2" {
+  name                    = "c2-nic-int-${random_string.suffix.id}"
+  location                = var.location
+  resource_group_name = "${var.resource_group_name}-${random_string.suffix.id}"
+  internal_dns_name_label = local.virtual_machine_name
+
+  ip_configuration {
+    name                          = "primary"
+    subnet_id                     = azurerm_subnet.c2.id
+    private_ip_address_allocation = "Static"
+    private_ip_address            = var.c2_private_ip 
+    public_ip_address_id          = azurerm_public_ip.c2.id
+  }
+
+  depends_on = [azurerm_resource_group.c2]
+}
+
+locals {
+  virtual_machine_name     = "c2" 
+}
+
+
+# Create (and display) an SSH key
+resource "tls_private_key" "c2" {
+    algorithm = "RSA"
+    rsa_bits = 4096
+}
+
+# Enable if you want to see the SSH key - It is written to a file
+output "tls_private_key_az" { 
+  value = tls_private_key.c2.private_key_pem
+  sensitive = true
+}
+
+# bootstrap script for c2 system 
+data "template_file" "c2" {
+  template = file("${path.module}/files/c2/{{ c2_name }}.sh.tpl")
+  vars = {
+  }
+}
+
+resource "azurerm_linux_virtual_machine" "c2" {
+  name                          = local.virtual_machine_name
+  location                      = var.location
+  resource_group_name = "${var.resource_group_name}-${random_string.suffix.id}"
+  network_interface_ids         = [azurerm_network_interface.c2.id]
+  size                       = "Standard_D4s_v3"
+  admin_username		= var.linux_admin_user 
+  disable_password_authentication = true
+
+  custom_data = base64encode(data.template_file.c2.rendered)
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+  os_disk {
+    name              = "${local.virtual_machine_name}-disk1"
+    caching           = "ReadWrite"
+    storage_account_type = "Premium_LRS"
+    disk_size_gb	= 100
+  }
+
+  admin_ssh_key {
+    username       = var.linux_admin_user 
+    public_key     = tls_private_key.c2.public_key_openssh
+  }
+
+  tags = {
+    environment = "c2 prod"
+  }
+  depends_on = [
+    azurerm_resource_group.c2,
+  ]
+}
+
+resource "local_file" "debug_bootstrap_c2" {
+
+  # For inspecting the rendered bash script as it is loaded onto endpoint through custom_data extension
+  content = data.template_file.c2.rendered
+  filename = "${path.module}/output/c2/c2-bootstrap.sh"
+}
+
+# write ssh key to file
+resource "local_file" "ssh_key_az" {
+    content = tls_private_key.c2.private_key_pem
+    filename = "${path.module}/ssh_key_az.pem"
+    file_permission = "0700"
+}
+
+resource "random_pet" "rp_c2" {
+  length = 2
+}
+
+#
+resource "random_string" "rs_c2" {
+  length  = 4
+  special = false
+  upper   = true
+}
+
+output "c2_system_details" {
+  value = <<EOS
+---------------------
+{{ c2_name }} details
+---------------------
+Public IP:   ${azurerm_public_ip.c2.ip_address}
+Private IP:  ${azurerm_network_interface.c2.private_ip_address}
+{{ c2_host_desc }}
+{{ extra_info }}
+
+SSH to {{ c2_name }} C2
+---------------
+ssh -i ssh_key_az.pem ${var.linux_admin_user}@${azurerm_public_ip.c2.ip_address}
+
+EOS
+}

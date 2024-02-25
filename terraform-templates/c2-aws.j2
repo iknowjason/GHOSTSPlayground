@@ -1,0 +1,201 @@
+# Created with Operator Lab
+# The terraform file that creates a C2 Linux server in AWS
+# NOTE:  AWS requires approval to run C2 operations for Red/Blue/Purple
+# NOTE:  Please ensure that you have permission from AWS simulation team
+
+variable "instance_type_c2" {
+  description = "The AWS instance type to use for C2"
+  default     = "t3a.medium"
+}
+
+variable "sliver_default_port_aws" {
+  default = "31337"
+}
+
+variable "empire_default_port_aws" {
+  default = "1337"
+}
+
+variable "root_block_device_size_c2" {
+  description = "The volume size of the root block device."
+  default     =  60 
+}
+
+data "aws_ami" "c2" {
+  most_recent      = true
+  owners           = ["099720109477"]
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+}
+
+resource "aws_instance" "c2" {
+  ami                    = data.aws_ami.c2.id
+  instance_type          = var.instance_type_c2
+  subnet_id              = aws_subnet.user_subnet.id
+  key_name               = module.key_pair.key_pair_name 
+  vpc_security_group_ids = [aws_security_group.c2_aws_ingress.id, aws_security_group.c2_aws_ssh_ingress.id, aws_security_group.c2_aws_allow_all_internal.id]
+
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = tls_private_key.private_key.private_key_pem
+    host        = self.public_ip
+  }
+
+  tags = {
+    "Name" = "c2"
+  }
+
+  root_block_device {
+    volume_type           = "gp2"
+    volume_size           = var.root_block_device_size_c2
+    delete_on_termination = "true"
+  }
+
+  user_data = data.template_file.c2.rendered 
+
+}
+
+data "template_file" "c2" {
+  template = file("${path.module}/files/c2/{{ c2_name }}.sh.tpl")
+
+  vars = {
+    s3_bucket = aws_s3_bucket.staging.id
+    region    = var.region
+  }
+}
+
+variable "c2" {
+  default = "{{ c2_name }}"
+}
+
+resource "local_file" "c2" {
+  # For inspecting the rendered bash script as it is loaded onto linux system 
+  content = data.template_file.c2.rendered
+  filename = "${path.module}/output/linux/c2.sh"
+}
+
+# Generic security group for linux systems
+resource "aws_security_group" "c2_aws_ingress" {
+  name   = "c2-aws-ingress"
+  vpc_id = aws_vpc.operator.id
+
+  # Default Empire Port 
+  ingress {
+    from_port       = var.empire_default_port_aws 
+    to_port         = var.empire_default_port_aws 
+    protocol        = "tcp"
+    cidr_blocks     = [local.src_ip]
+  }
+
+  # Default Sliver Port 
+  ingress {
+    from_port       = var.sliver_default_port_aws 
+    to_port         = var.sliver_default_port_aws 
+    protocol        = "tcp"
+    cidr_blocks     = [local.src_ip]
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "c2_aws_ssh_ingress" {
+  name   = "c2-aws-ssh-ingress"
+  vpc_id = aws_vpc.operator.id
+
+  # SSH
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [local.src_ip]
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "c2_aws_allow_all_internal" {
+  name   = "c2-aws-allow-all-internal"
+  vpc_id = aws_vpc.operator.id
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+  }
+
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    cidr_blocks = [var.vpc_cidr]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    self        = true
+  }
+}
+
+output "details_c2" {
+  value = <<CONFIGURATION
+---------------------
+{{ c2_name }} details
+---------------------
+Public IP:   ${aws_instance.c2.public_ip} 
+Private IP:  ${aws_instance.c2.private_ip} 
+EC2 Inst ID: ${aws_instance.c2.id}
+{{ c2_host_desc }}
+{{ extra_info }}
+
+SSH to {{ c2_name }} C2 
+---------------
+ssh -i ssh_key.pem ubuntu@${aws_instance.c2.public_ip}  
+
+CONFIGURATION
+}
