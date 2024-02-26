@@ -88,7 +88,7 @@ Note:  The Splunk system is incomplete.  It installs the server software and boo
 - [x] Ghosts NPC User Simulation ✅ 2023-08-25
 - [x] Prelude Operator headless C2 setup with pneuma
 - [x] Velociraptor server and endpoints
-- [ ] C2 support
+- [x] C2 support
 - [x] Mac system support
 - [x] Linux system support (Ubuntu, Amazon Linux, Kali Linux, Debian, RHEL)
 
