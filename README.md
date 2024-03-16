@@ -4,7 +4,7 @@ Operator Lab is a security lab building framework for Red and Blue teams, with t
 
 ## Overview
 
-Operator Lab framework works as a python script in which users pass parameters to the script, which dynamically builds different capabilities.  The capabilities can be mixed and matched in myriad different combinations, allowing one to automate creating a unique enterprise security lab. The capabilities are terraform data templates that live in the ```terraform-templates``` directory as jinja files.  The jinja terraform data templates can be customized for your unique requirements.  The python script does variable substitution to manipulate the terraform files.  Inside of each capability, there are also specific sub-directories for how the capabilities are built.  These are constructed as configuration files, bash, and powershell scripts.
+Operator Lab framework works as a python script in which users pass parameters to the script, which dynamically builds different ```capabilities```.  The ```capabilities``` can be mixed and matched in myriad different combinations, allowing one to automate creating a unique enterprise security lab. The ```capabilities``` are terraform data templates that live in the ```terraform-templates``` directory as jinja files.  The jinja terraform data templates can be customized for your unique requirements.  The python script does variable substitution to manipulate the terraform files.  Inside of each capability, there are also specific sub-directories for how the capabilities are built.  These are constructed as configuration files, bash, and powershell scripts.
 
 ## Capability Summary
 * Windows, Linux, MacOS 
