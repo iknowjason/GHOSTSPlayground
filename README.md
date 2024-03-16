@@ -203,10 +203,10 @@ Reference Empire (BC-Security):  https://github.com/BC-SECURITY/Empire
 
 Mix and match the capabilities to your delight with myriad possibilities.  Here are some examples:
 
-### Enterprise Windows Attack with Breach and Attack Simulation
+### Enterprise Windows AD Attack with Breach and Attack Simulation
 
 ```
-python3 operator.py -dc --ad_domain rtcfingroup.com --admin RTCAdmin --password MyPassword012345 --ad_users 500 --winclients 2  --domain_join
+python3 operator.py -dc --winclients 2 --domain_join --bas
 ```
 
 
