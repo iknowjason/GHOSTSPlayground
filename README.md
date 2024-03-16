@@ -111,7 +111,7 @@ python3 operator.py --winclient 1 --region us-west-1
 Description:  Same as above, but builds all resources in us-west-1 instead of default region (us-east-2)
 
 ```
-python3 operator.py --winclient 2 --admin --MyAdmin --password MyPassword
+python3 operator.py --winclient 2 --admin MyAdmin --password MyPassword
 ```
 
 Description:  Builds to Windows client systems with a local administrator username and password that is user specified (instead of randomly generated).
