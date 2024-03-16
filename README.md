@@ -1,10 +1,21 @@
 # Operator Lab 
 
-Operator Lab is a security lab enabling Red and Blue teams to improve offensive and defensive capabilities.  This documentation is a work in progress and will be updated further.
+Operator Lab is a security lab building framework that enables red teams to help blue get better at defense.  This documentation is a work in progress and will be updated further.
 
 ## Overview
 
-## Features and Capabilities
+Operator Lab framework works as a python script in which users pass parameters to the script, which dynamically builds different capabilities.  The capabilities can be mixed and matched in myriad different combinations, allowing one to automate creating a unique enterprise security lab. The capabilities are terraform data templates that live in the ```terraform-templates``` directory as jinja files.  The jinja terraform data templates can be customized for your unique requirements.  The python script does variable substitution to manipulate the terraform files.  Inside of each capability, there are also specific sub-directories for how the capabilities are built.  These are constructed as configuration files, bash, and powershell scripts.
+
+## Capability Summary
+* Windows, Linux, MacOS 
+* Active Directory Domain Services (AD DS) with Domain Join
+* Breach and Attack Simulation (Caldera, VECTR)
+* Elastic Stack (ELK)
+* CloudWatch, CloudTrail, SSM, and S3 bucket (Cloud Native SIEM automation)
+* Velociraptor
+* GHOSTS NPC
+* Hashicorp Nomad
+* Command and Control (C2) 
 
 ## Installation
 
