@@ -81,6 +81,8 @@ https://github.com/iknowjason/MacLab
 
 **Build Windows Client Systems:**
 
+All Windows client systems build by default with Red Teams tools (Atomic Red Team) and Sysmon.
+
 ```python3 operator.py --winclient 1```
 
 Description:  Builds one Windows Server 2022 clients instrumented with Sysmon, Atomic Red Team, and PurpleSharp.
