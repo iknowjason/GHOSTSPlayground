@@ -24,8 +24,19 @@ Tested with:
 * python 3.9
 * terraform 1.5.7
 
-Extra requirements:
-Faker:  ```pip3 install faker```
+### Extra requirements (will include requirements.txt soon):
+
+**Faker:**  
+
+```
+pip3 install faker
+```
+
+**RandomDataGenerators:**
+
+```
+
+```
 
 Credentials Setup:
 Generate an IAM programmatic access key that has permissions to build resources in your AWS account.  Setup your .env to load these environment variables.  You can also use the direnv tool to hook into your shell and populate the .envrc.  Should look something like this in your .env or .envrc:
