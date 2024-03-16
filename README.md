@@ -19,7 +19,8 @@ Operator Lab framework works as a python script in which users pass parameters t
 
 ## Installation
 
-Tested with:
+**Tested with:**
+
 * Mac OS 13.4, Ubuntu Linux 22.04
 * python 3.9
 * terraform 1.5.7
