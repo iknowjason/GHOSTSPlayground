@@ -35,7 +35,7 @@ pip3 install faker
 **RandomDataGenerators:**
 
 ```
-
+python -m pip install RandomDataGenerators
 ```
 
 Credentials Setup:
