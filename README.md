@@ -27,7 +27,7 @@ Tested with:
 ### Extra requirements (will include requirements.txt soon):
 
 **Python 3:**
-Requires Python 3.7 or later
+Requires Python 3.7 or later for the RandomDataGenerators module
 
 **Faker:**  
 
@@ -38,7 +38,7 @@ pip3 install faker
 **RandomDataGenerators:**
 
 ```
-python -m pip install RandomDataGenerators
+pip3 install RandomDataGenerators
 ```
 
 Credentials Setup:
