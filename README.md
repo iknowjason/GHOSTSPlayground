@@ -103,19 +103,19 @@ All Windows client systems build by default with Red Teams tools (Atomic Red Tea
 python3 operator.py --winclient 1
 ```
 
-Description:  Builds one Windows Server 2022 clients instrumented with Sysmon, Atomic Red Team, and PurpleSharp.
+**Description:**  Builds one Windows Server 2022 clients instrumented with Sysmon, Atomic Red Team, and PurpleSharp.
 
 ```
 python3 operator.py --winclient 1 --region us-west-1
 ```
 
-Description:  Same as above, but builds all resources in us-west-1 instead of default region (us-east-2)
+**Description:**  Same as above, but builds all resources in us-west-1 instead of default region (us-east-2)
 
 ```
 python3 operator.py --winclient 2 --admin MyAdmin --password MyPassword
 ```
 
-Description:  Builds to Windows client systems with a local administrator username and password that is user specified (instead of randomly generated).
+**Description:**  Builds two Windows client systems with a local administrator username and password that is user specified (instead of randomly generated).
 
 
 ### Active Directory Domain Services (AD DS)
