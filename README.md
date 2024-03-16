@@ -20,7 +20,7 @@ Operator Lab framework works as a python script in which users pass parameters t
 ## Installation
 
 Tested with:
-* Mac OS 13.4
+* Mac OS 13.4, Ubuntu Linux 22.04
 * python 3.9
 * terraform 1.5.7
 
@@ -69,8 +69,9 @@ python3 operator.py --region eu-central-1
 ```
 To make a permanent change to the default region, modify the variable ```default_region``` inside script.
 
-### Build Linux, Mac, or Windows with Count Number of Systems
+### Build Linux, Mac, or Windows with Quantity Number of Systems Built
 
+Build any number of Windows, Linux, or MacOS systems with exact quantities.  You do this with ```--winclient <count>```, ```--linux <count>```, and ```--macs <count>```.
 
 **Build 3 Kali Linux systems in default region:**
 
