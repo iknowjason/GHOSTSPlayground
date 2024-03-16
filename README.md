@@ -34,7 +34,9 @@ export AWS_ACCESS_KEY_ID="VALUE"
 export AWS_SECRET_ACCESS_KEY="VALUE"
 ```
 
-## Usage Examples
+## Usage 
+
+### Basic Usage
 
 The basic usage is like this:  
 1. Run operator:  ```python3 operator.py <OPTIONS>```.  This will generate terraform files.  Then run terraform.
@@ -42,6 +44,11 @@ The basic usage is like this:
 3. ```terraform apply -auto-approve```
 
 **Destroy:** When you are finished and wish to destroy the resources:  ```terraform destroy -auto-approve```
+
+## Capabilities:  Usage Examples
+
+
+
 
 ### Build Windows Client Systems
 ```python3 operator.py --winclient 1```
@@ -82,7 +89,7 @@ Description:  Installs either Elasticsearch with Kibana or a Splunk Enterprise l
 
 Note:  The Splunk system is incomplete.  It installs the server software and bootstraps the service.  Still need to load some indexes and dashboards.  Still need to have windows clients install the universal forwarder and ship logs to Splunk fully automated.
 
-## To Do List
+## To Do List History of Completion
 
 - [x] Use jinja templates for terraform instrumented with python ✅ 2023-07-25
 - [x] Test install_red script to get Atomic Red Team, PurpleSharp installed ✅ 2023-07-25
