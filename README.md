@@ -1,6 +1,6 @@
 # Operator Lab 
 
-Operator Lab is a security lab building framework that enables red teams to help blue get better at defense.  This documentation is a work in progress and will be updated further.
+Operator Lab is a security lab building framework for Red and Blue teams, with the goal of helping Red make Blue better. This documentation is a work in progress and will be updated further.
 
 ## Overview
 
@@ -8,7 +8,7 @@ Operator Lab framework works as a python script in which users pass parameters t
 
 ## Capability Summary
 * Windows, Linux, MacOS 
-* Active Directory Domain Services (AD DS) with Domain Join
+* Active Directory Domain Services (AD DS) with Domain Join & Auto Logon Domain User support
 * Breach and Attack Simulation (Caldera, VECTR)
 * Elastic Stack (ELK)
 * CloudWatch, CloudTrail, SSM, and S3 bucket (Cloud Native SIEM automation)
