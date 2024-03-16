@@ -49,7 +49,7 @@ The basic usage is like this:
 
 ### Change AWS region
 
-Changes the AWS region to eu-central-1.  The default region is ```us-east-2```.
+Changes the AWS region to ```eu-central-1```.  The default region is ```us-east-2```.
 ```
 python3 operator.py --region eu-central-1
 ```
@@ -104,6 +104,21 @@ python3 operator.py --domain_controller --ad_domain rtcfingroup.com --admin RTCA
 
 **Description:** Same capabilities as above, except it can import a custom list of Domain Users into active directory on the DC instance. The script checks to make sure that users are in the correct format. 
 
+### Install Breach and Attack Simulation (Caldera, VECTR)
+```python3 operator.py --winclient 1 --bas```
+
+**Description:**  Installs a Breach and Attack Simulation Linux server.  The server installs Caldera, VECTR.  For each Windows client, the Caldera sandcat agent is installed and registers to BAS server automatically.  
+
+Reference:  https://github.com/SecurityRiskAdvisors/VECTR
+
+### Install SIEM (Elastic)
+```python3 operator.py --winclient 1 --siem [elk|splunk]```
+
+Description:  Installs either Elasticsearch with Kibana or a Splunk Enterprise linux server.  Each windows client automatically installs and ships elastic logs via winlogbeat.
+
+Note:  The Splunk option can be removed.  The Splunk server implemenation is done, but stopped working on the clients to forward Universal Forwarder.  Decided that for Splunk, Attack Range is much more comprehensive and also unknown future with Cisco acquisition.  This Operator project can focus on ELK implementation.
+
+
 ### Install Nomad
 ```python3 operator.py --winclient 1 --nomad```
 
@@ -118,21 +133,6 @@ Description:  Installs the Ghosts NPC (Non-player Character) framework.  This cr
 
 Reference:  https://github.com/cmu-sei/GHOSTS
 
-### Install Breach and Attack Simulation (Caldera, VECTR, Prelude Operator)
-```python3 operator.py --winclient 1 --ghosts```
-
-Description:  Installs a Breach and Attack Simulation Linux server.  The server installs Caldera, VECTR.  For each Windows client, Prelude Operator GUI is installed automatically.  
-
-Note:  Still need to install the prelude headless pneuma for remote C2 control of the windows clients.
-
-Reference:  https://github.com/SecurityRiskAdvisors/VECTR
-
-### Install SIEM (Splunk, Elastic)
-```python3 operator.py --winclient 1 --siem [elk|splunk]```
-
-Description:  Installs either Elasticsearch with Kibana or a Splunk Enterprise linux server.  Each windows client automatically installs and ships elastic logs via winlogbeat.
-
-Note:  The Splunk system is incomplete.  It installs the server software and bootstraps the service.  Still need to load some indexes and dashboards.  Still need to have windows clients install the universal forwarder and ship logs to Splunk fully automated.
 
 ## To Do List History of Completion
 
