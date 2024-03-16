@@ -130,7 +130,7 @@ python3 operator.py --winclient 2 --s3_cloudtrail
 ```
 
 **Description:** 
-Adds two Windows client systems installed with Amazon cloudwatch agent.  The EC2 instance with cloudwatch has a special IAM instance profile with permissions allowing it to send logs to cloudwatch.  A customizable configuration for cloudwatch builds from ```files/windows/cloudwatch.config.json```.  The configuration builds sysmon, powershell logging configuration, and security logs.  All of these get sent to Cloudwatch.  A cloudtrail trail for auditing is also created with a logwatch group.  All of the logs get sent to an S3 bucket which is orchestrated through Amazon firehose.  All windows systems have a special SSM permission policy attached via Instance Profile.  Will need to add the SSM cheat sheet of commands to run against Windows.
+Adds two Windows client systems installed with Amazon cloudwatch agent.  The EC2 instance with cloudwatch has a special IAM instance profile with permissions allowing it to send logs to cloudwatch.  A customizable configuration for cloudwatch builds from ```files/windows/cloudwatch.config.json```.  The configuration builds sysmon, powershell logging configuration, and security logs.  All of these get sent to Cloudwatch.  A cloudtrail trail for auditing is also created with a logwatch group.  All of the logs get sent to an S3 bucket which is orchestrated through Amazon firehose.  All windows systems have a special SSM permission policy attached via Instance Profile.  The SSM configuration for System Manager is a realistic configuration for Amazon customers, and allows managing Windows and sending shell commands to the windows systems.  Will need to add the SSM cheat sheet of commands to run against Windows.
 
 
 ### Install Nomad
