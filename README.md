@@ -47,6 +47,14 @@ The basic usage is like this:
 
 ## Capabilities:  Usage Examples
 
+### Change AWS region
+
+Changes the AWS region to eu-central-1.  The default region is ```us-east-2```.
+```
+python3 operator.py --region eu-central-1
+```
+To make a permanent change to the default region, modify the variable ```default_region``` inside script.
+
 ### Build Linux, Mac, or Windows with Count Number of Systems
 
 **Build 3 Kali Linux systems in default region:**
@@ -62,9 +70,16 @@ python3 operator.py --linux 2 --linux-os redhat --region eu-west-1
 
 Current Linux OS support:  ubuntu, debian, redhat, amazon,  kali
 
+**Build MacOS:**
+```
+python3 operator.py --macs 1 --mac_instance intel
+```
 
+Builds 1 Mac instance with Intel architecture.  For detailed guidance on building Macs, please see the MacLab documentation.  Operator was used to create MacLab:
+https://github.com/iknowjason/MacLab
 
-### Build Windows Client Systems
+**Build Windows Client Systems:**
+
 ```python3 operator.py --winclient 1```
 
 Description:  Builds one Windows Server 2022 clients instrumented with Sysmon, Atomic Red Team, and PurpleSharp.
