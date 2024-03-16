@@ -98,13 +98,24 @@ https://github.com/iknowjason/MacLab
 
 All Windows client systems build by default with Red Teams tools (Atomic Red Team) and Sysmon.
 
-```python3 operator.py --winclient 1```
+```
+python3 operator.py --winclient 1
+```
 
 Description:  Builds one Windows Server 2022 clients instrumented with Sysmon, Atomic Red Team, and PurpleSharp.
 
-```python3 operator.py --winclient 1 --region us-west-1```
+```
+python3 operator.py --winclient 1 --region us-west-1
+```
 
 Description:  Same as above, but builds all resources in us-west-1 instead of default region (us-east-2)
+
+```
+python3 operator.py --winclient 2 --admin --MyAdmin --password MyPassword
+```
+
+Description:  Builds to Windows client systems with a local administrator username and password that is user specified (instead of randomly generated).
+
 
 ### Active Directory Domain Services (AD DS)
 Builds a domain controller with lots of parameters for options:
@@ -187,6 +198,17 @@ Description:  Installs a command and control (C2) Linux server.  The --c2 option
 Reference Sliver:  https://github.com/BishopFox/sliver
 
 Reference Empire (BC-Security):  https://github.com/BC-SECURITY/Empire
+
+## Custom Lab Combinations
+
+Mix and match the capabilities to your delight with myriad possibilities.  Here are some examples:
+
+### Enterprise Windows Attack with Breach and Attack Simulation
+
+```
+python3 operator.py -dc --ad_domain rtcfingroup.com --admin RTCAdmin --password MyPassword012345 --ad_users 500 --winclients 2  --domain_join
+```
+
 
 
 ## To Do List History of Completion
