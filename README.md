@@ -47,6 +47,20 @@ The basic usage is like this:
 
 ## Capabilities:  Usage Examples
 
+### Build Linux, Mac, or Windows with Count Number of Systems
+
+**Build 3 Kali Linux systems in default region:**
+
+```
+python3 operator.py --linux 3 --linux-os kali
+```
+
+**Build 2 Red Hat systems in eu-west-1:**
+```
+python3 operator.py --linux 2 --linux-os redhat --region eu-west-1
+```
+
+Current Linux OS support:  ubuntu, debian, redhat, amazon,  kali
 
 
 
