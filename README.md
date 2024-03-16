@@ -112,11 +112,23 @@ python3 operator.py --domain_controller --ad_domain rtcfingroup.com --admin RTCA
 Reference:  https://github.com/SecurityRiskAdvisors/VECTR
 
 ### Install SIEM (Elastic)
-```python3 operator.py --winclient 1 --siem [elk|splunk]```
 
-Description:  Installs either Elasticsearch with Kibana or a Splunk Enterprise linux server.  Each windows client automatically installs and ships elastic logs via winlogbeat.
+```
+python3 operator.py --winclient 1 --siem [elk|splunk]
+```
+
+**Description:**  Installs either Elasticsearch with Kibana or a Splunk Enterprise linux server.  Each windows client automatically installs and ships elastic logs via winlogbeat.
 
 Note:  The Splunk option can be removed.  The Splunk server implemenation is done, but stopped working on the clients to forward Universal Forwarder.  Decided that for Splunk, Attack Range is much more comprehensive and also unknown future with Cisco acquisition.  This Operator project can focus on ELK implementation.
+
+### CloudWatch, CloudTrail, SSM, and S3 bucket (Cloud Native SIEM)
+
+```
+python3 operator.py --winclient 2 --s3_cloudtrail
+```
+
+**Description:** 
+Adds two Windows client systems installed with Amazon cloudwatch agent.  The EC2 instance with cloudwatch has a special IAM instance profile with permissions allowing it to send logs to cloudwatch.  A customizable configuration for cloudwatch builds from ```files/windows/cloudwatch.config.json```.  The configuration builds sysmon, powershell logging configuration, and security logs.  All of these get sent to Cloudwatch.  A cloudtrail trail for auditing is also created with a logwatch group.  All of the logs get sent to an S3 bucket which is orchestrated through Amazon firehose.  All windows systems have a special SSM permission policy attached via Instance Profile.  Will need to add the SSM cheat sheet of commands to run against Windows.
 
 
 ### Install Nomad
