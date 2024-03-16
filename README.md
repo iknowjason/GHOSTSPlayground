@@ -26,6 +26,9 @@ Tested with:
 
 ### Extra requirements (will include requirements.txt soon):
 
+**Python 3:**
+Requires Python 3.7 or later
+
 **Faker:**  
 
 ```
