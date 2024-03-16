@@ -229,7 +229,7 @@ python3 operator.py -dc --winclients 2  --domain_join --bas --siem elk
 ```
 
 
-### Example 5:  Enterprise Windows AD Attack with Breach and Attack Simulation and Elastic SIEM
+### Example 5:  Enterprise Windows AD Attack with Breach and Attack Simulation and Cloud Native SIEM (CloudWatch, CloudTrail, S3 Auditing)
 
 ```
 python3 operator.py -dc --winclients 2  --domain_join --bas --s3_cloudtrail
