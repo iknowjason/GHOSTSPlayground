@@ -57,6 +57,7 @@ To make a permanent change to the default region, modify the variable ```default
 
 ### Build Linux, Mac, or Windows with Count Number of Systems
 
+
 **Build 3 Kali Linux systems in default region:**
 
 ```
@@ -87,6 +88,21 @@ Description:  Builds one Windows Server 2022 clients instrumented with Sysmon, A
 ```python3 operator.py --winclient 1 --region us-west-1```
 
 Description:  Same as above, but builds all resources in us-west-1 instead of default region (us-east-2)
+
+### Active Directory Domain Services (AD DS)
+Builds a domain controller with lots of parameters for options:
+
+```
+python3 operator.py --domain_controller --ad_domain rtcfingroup.com --admin RTCAdmin --password MyPassword012345 --ad_users 500 --winclients 2  --domain_join
+```
+
+**Description:** This will create a Domain Controller in dc.tf and install AD DS with forest name of rtcfingroup.com. This will create a custom local administrator account and password with 500 domain users. In this example, the domain users are randomly generated using the command line flag of --ad_users for a total of 500 users. The domain users will be written to ad_users.csv and will have the password specified in --password. Note that domain join is disabled by default for Windows clients but the domain_join parameter enables it for all Windows clients created. This will also create two Windows client terraform files (win1.tf, win2.tf) as well as a terraform file for the Domain Controller (dc.tf).
+
+```
+python3 operator.py --domain_controller --ad_domain rtcfingroup.com --admin RTCAdmin --password MyPassword012345 --csv users.csv --winclients 2  --domain_join
+```
+
+**Description:** Same capabilities as above, except it can import a custom list of Domain Users into active directory on the DC instance. The script checks to make sure that users are in the correct format. 
 
 ### Install Nomad
 ```python3 operator.py --winclient 1 --nomad```
