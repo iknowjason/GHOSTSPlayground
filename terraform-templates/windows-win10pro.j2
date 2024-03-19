@@ -1,0 +1,113 @@
+# Windows 10 Pro Template
+
+variable "{{ endpoint_ip_var_name }}" {
+  default = "{{ endpoint_ip_default }}"
+}
+
+variable "{{ admin_username_var_name }}" {
+  default = "{{ admin_username_default }}"
+}
+
+variable "{{ admin_password_var_name }}" {
+  default = "{{ admin_password_default }}"
+}
+
+variable "{{ join_domain_var_name }}" {
+  default = {{ join_domain_default }}
+}
+
+variable "{{ endpoint_hostname_var_name }}" {
+  default = "{{ endpoint_hostname_default }}"
+}
+
+# AMI 
+variable "ami_{{ endpoint_hostname_var_name }}" {
+  description = "The AMI ID to use for the EC2 instance"
+  default = "ami-043c1c607bf4f2612"
+}
+
+# Windows OS 
+variable "winos_{{ endpoint_hostname_var_name }}" {
+  description = "The Windows OS"
+  default = "Windows 10 Professional"
+}
+
+# EC2 Instance
+resource "aws_instance" "{{ ec2_windows_virtual_machine_var_name }}" {
+  ami           = var.ami_{{ endpoint_hostname_var_name }}
+  instance_type = "t2.micro"
+  key_name	= module.key_pair.key_pair_name
+  subnet_id     = aws_subnet.user_subnet.id
+  associate_public_ip_address = true
+  user_data	= data.template_file.{{ ps_template_var_name }}.rendered
+  vpc_security_group_ids = [
+    aws_security_group.operator_windows.id
+  ]
+
+  {{ iam_instance_profile }}
+  
+  root_block_device {
+    volume_size           = 70
+  }
+
+  tags = {
+    "Name" = "{{ ec2_windows_virtual_machine_var_name }}"
+  }
+  depends_on = [
+    # reserved for later
+  ]
+}
+
+data "template_file" "{{ ps_template_var_name }}" {
+  template = file("${path.module}/files/windows/bootstrap-win.ps1.tpl")
+
+  vars  = {
+    hostname                  = "{{ endpoint_hostname_default }}"
+    join_domain               = var.{{ join_domain_var_name }} ? 1 : 0
+    install_sysmon            = {{ install_sysmon }} ? 1 : 0
+    install_red               = {{ install_red }} ? 1 : 0
+    install_ghosts            = {{ install_ghosts }} ? 1 : 0
+    install_caldera           = {{ install_caldera }} ? 1 : 0
+    auto_logon_domain_user    = {{ auto_logon_setting }} ? 1 : 0
+    dc_ip                     = "{{ dc_ip }}" 
+    endpoint_ad_user          = "{{ endpoint_ad_user }}" 
+    endpoint_ad_password      = "{{ endpoint_ad_password }}" 
+    winrm_username            = "{{ winrm_username }}" 
+    winrm_password            = "{{ winrm_password }}" 
+    admin_username            = var.{{ admin_username_var_name }}
+    admin_password            = var.{{ admin_password_var_name }}
+    ad_domain                 = "{{ ad_domain }}"
+    script_files              = join(",", local.script_files_win)
+    windows_msi               = {{ setting_windows_msi }} 
+    vclient_config            = {{ setting_vclient_config }} 
+    winlogbeat_zip            = {{ setting_winlogbeat_zip }} 
+    winlogbeat_config         = {{ setting_winlogbeat_config }} 
+    sysmon_config             = {{ sysmon_config }} 
+    sysmon_zip                = {{ sysmon_zip }} 
+    s3_bucket                 = "${aws_s3_bucket.staging.id}"
+    region                    = var.region
+  }
+}
+
+resource "local_file" "{{ debug_bootstrap_script_var_name }}" {
+  # For inspecting the rendered powershell script as it is loaded onto endpoint 
+  content = data.template_file.{{ ps_template_var_name }}.rendered
+  filename = "${path.module}/output/windows/bootstrap-${var.{{ endpoint_hostname_var_name }}}.ps1"
+}
+
+output "windows_endpoint_details_{{ ec2_windows_virtual_machine_var_name }}" {
+  value = <<EOS
+-------------------------
+Virtual Machine ${aws_instance.{{ ec2_windows_virtual_machine_var_name }}.tags["Name"]}
+-------------------------
+Instance ID: ${aws_instance.{{ ec2_windows_virtual_machine_var_name }}.id}
+OS: ${var.winos_{{ endpoint_hostname_var_name }}}
+Computer Name:  ${aws_instance.{{ ec2_windows_virtual_machine_var_name }}.tags["Name"]}
+Private IP: ${var.{{ endpoint_ip_var_name }}}
+Public IP:  ${aws_instance.{{ ec2_windows_virtual_machine_var_name }}.public_ip}
+local Admin:  ${var.{{ admin_username_var_name }}}
+local password: ${var.{{ admin_password_var_name }}}
+
+EOS
+}
+
