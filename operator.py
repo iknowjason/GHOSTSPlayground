@@ -3,14 +3,17 @@
 # From there you can customize your terraform further and create your own templates!
 # Author:  Jason Ostrom
 
-import random
 import sys
+print(f"Starting Operator Lab: {sys.argv[0]}")
+print("Loading imports")
+import random
+#import sys
 import argparse
 import os
-import subprocess
-import urllib.request
-import secrets
-import string
+#import subprocess
+#import urllib.request
+#import secrets
+#import string
 import logging
 from csv import reader
 import os.path
@@ -24,7 +27,7 @@ from RandomDataGenerators.RandomFunctions import random_pet_name
 parser = argparse.ArgumentParser(description='A script to create an AWS security lab')
 
 # Add argument for count of Windows clients
-parser.add_argument('-wc', '--winclients', dest='winclients_count')
+parser.add_argument('-win', '--windows', dest='winclients_count')
 
 # Add argument for aws region
 parser.add_argument('-r', '--region', dest='region')
@@ -82,6 +85,9 @@ parser.add_argument('-lin', '--linux', dest='linux_count', help='Number of Linux
 
 # Add argument for Linux OS with default value "ubuntu" and restricted choices
 parser.add_argument('-lo', '--linux-os', default='ubuntu', choices=['ubuntu', 'debian', 'redhat', 'amazon', 'kali'], help='The Linux OS to build. Default is "ubuntu".')
+
+# Add argument for Windows OS with default value "ws2022" and restricted choices
+parser.add_argument('-wo', '--win-os', default='ws2022', choices=['ws2022', 'ws2019', 'win10'], help='The Windows OS to build. Default is "ws2022".')
 
 parser.add_argument("--c2", dest='c2', type=str, choices=["none", "empire", "sliver"],
                     help="Specify the C2 framework to use. Defaults to 'empire'.")
@@ -392,11 +398,11 @@ users_added = 0
 ad_users_csv = "ad_users.csv"
 default_aduser_password = get_password(args)
 default_domain = "rtc.local"
-default_winrm_username = ""
 default_winrm_password = get_password(args)
-default_admin_username = "RTCAdmin"
+default_admin_username = "OpsAdmin"
 default_admin_password = get_password(args)
 default_da_password = get_password(args)
+
 ad_groups = ["Marketing", "IT", "Legal", "Sales", "Executive", "Engineering"]
 
 # duplicate count for created AD users
@@ -505,7 +511,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='ranges.log', lev
 
 if __name__ == '__main__':
 
-    print(f"Starting Operator Lab: {sys.argv[0]}")
+    #print(f"Starting Operator Lab: {sys.argv[0]}")
 
     # C2 and csp validation
     if (args.c2 and not args.csp) or (args.csp and not args.c2):
@@ -964,8 +970,17 @@ if __name__ == '__main__':
 
     # Begin Windows client systems
 
-    # Get the clients jinja template
-    client_template = env.get_template('client.jinja')
+    # Get the windows client jinja template
+    win_template = ""
+    if args.win_os == "win10":
+        win_template = "windows-win10pro.j2"
+    elif args.win_os == "ws2019":
+        win_template = "windows-ws2019.j2"
+    else:
+        win_template = "windows-ws2022.j2"
+
+    #print("Using Windows Client Template: ", win_template)
+    #client_template = env.get_template(win_template)
 
     if (win_count > 0):
         print("[+] Building Windows Client System")
@@ -1018,8 +1033,9 @@ if __name__ == '__main__':
         print("    [+] IP address:", this_ipaddr)
         logging.info('[+] IP address: %s', this_ipaddr)
 
-        # Get the clients jinja template
-        client_template = env.get_template('client.jinja')
+        # Get the Windows clients jinja template
+        client_template = env.get_template(win_template)
+        #client_template = env.get_template('client.jinja')
 
         # Initialize a dictionary to store all the template variables
         template_vars = {}
