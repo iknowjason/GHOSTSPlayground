@@ -1,8 +1,8 @@
 # GHOSTS Security Playground
 
-## Overview
-
 ![GHOSTS](images/ghosts-overview.png "GHOSTS Overview")
+
+## Overview
 
 Automated Emulation is a simple terraform template creating a customizable and automated Breach and Attack Simulation lab.  It automically builds the following resources hosted in AWS:
 
