@@ -119,30 +119,4 @@ done
 docker-compose up -d
 echo "GHOSTS Install complete"
 
-# Install Ghosts Animator
-echo "Install GHOSTS Animator"
-cd /home/ubuntu
-git clone https://github.com/cmu-sei/GHOSTS-ANIMATOR
-cd GHOSTS-ANIMATOR/src
-sudo docker build . -t ghosts/animator
-# change listening port to be 5001
-sed -i 's/5000:5000/5001:5001/g' docker-compose.yml
-# download animator appsettings.json
-file="appsettings.json"
-object_url="https://${s3_bucket}.s3.${region}.amazonaws.com/$file"
-echo "Downloading s3 object url: $object_url"
-for i in {1..5}
-do
-    echo "Download attempt: $i"
-    curl -O "$object_url"
-
-    if [ $? -eq 0 ]; then
-        echo "Download successful."
-        break
-    else
-        echo "Download failed. Retrying..."
-    fi
-done
-docker compose up -d
-
 echo "End of bootstrap script"
