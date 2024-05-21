@@ -2,6 +2,8 @@
 
 ## Overview
 
+![GHOSTS](images/ghosts-overview.png "GHOSTS Overview")
+
 Automated Emulation is a simple terraform template creating a customizable and automated Breach and Attack Simulation lab.  It automically builds the following resources hosted in AWS:
 
 * One Linux server deploying Caldera and VECTR (vectr.io)
