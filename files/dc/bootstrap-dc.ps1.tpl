@@ -88,6 +88,38 @@ foreach ($filename in $scriptFilenames) {
   & $outfile
 }
 
+$ComputerName = "${hostname}"
+$RemoteHostName = "${hostname}" + "." + "${ad_domain}"
+lwrite("ComputerName: $ComputerName")
+lwrite("RemoteHostName: $RemoteHostName")
+
+# Setup WinRM remoting
+$Cert = New-SelfSignedCertificate -DnsName $RemoteHostName, $ComputerName `
+    -CertStoreLocation "cert:\LocalMachine\My" `
+    -FriendlyName "DC WinRM Cert"
+
+$Cert | Out-String
+
+$Thumbprint = $Cert.Thumbprint
+
+lwrite("Enable HTTPS in WinRM")
+$WinRmHttps = "@{Hostname=`"$RemoteHostName`"; CertificateThumbprint=`"$Thumbprint`"}"
+winrm create winrm/config/Listener?Address=*+Transport=HTTPS $WinRmHttps
+
+lwrite("Set Basic Auth in WinRM")
+$WinRmBasic = "@{Basic=`"true`"}"
+winrm set winrm/config/service/Auth $WinRmBasic
+
+lwrite("Open Firewall Ports")
+netsh advfirewall firewall add rule name="Windows Remote Management (HTTP-In)" dir=in action=allow protocol=TCP localport=5985
+netsh advfirewall firewall add rule name="Windows Remote Management (HTTPS-In)" dir=in action=allow protocol=TCP localport=5986
+
+### Force Enabling WinRM and skip profile check
+Enable-PSRemoting -SkipNetworkProfileCheck -Force
+
+# Set Trusted Hosts * for WinRM HTTPS
+Set-Item -Force wsman:\localhost\client\trustedhosts *
+
 # Install AD script - Download it, run it
 lwrite("Going to download from S3 bucket: ${s3_bucket}")
 $filename = "${ad_install_script}"
@@ -125,38 +157,6 @@ if ($Attempt -eq $MaxAttempts) {
 # Run ad install script 
 lwrite("Running $outfile")
 & $outfile
-
-$ComputerName = "${hostname}"
-$RemoteHostName = "${hostname}" + "." + "${ad_domain}"
-lwrite("ComputerName: $ComputerName")
-lwrite("RemoteHostName: $RemoteHostName")
-
-# Setup WinRM remoting
-$Cert = New-SelfSignedCertificate -DnsName $RemoteHostName, $ComputerName `
-    -CertStoreLocation "cert:\LocalMachine\My" `
-    -FriendlyName "DC WinRM Cert"
-
-$Cert | Out-String
-
-$Thumbprint = $Cert.Thumbprint
-
-lwrite("Enable HTTPS in WinRM")
-$WinRmHttps = "@{Hostname=`"$RemoteHostName`"; CertificateThumbprint=`"$Thumbprint`"}"
-winrm create winrm/config/Listener?Address=*+Transport=HTTPS $WinRmHttps
-
-lwrite("Set Basic Auth in WinRM")
-$WinRmBasic = "@{Basic=`"true`"}"
-winrm set winrm/config/service/Auth $WinRmBasic
-
-lwrite("Open Firewall Ports")
-netsh advfirewall firewall add rule name="Windows Remote Management (HTTP-In)" dir=in action=allow protocol=TCP localport=5985
-netsh advfirewall firewall add rule name="Windows Remote Management (HTTPS-In)" dir=in action=allow protocol=TCP localport=5986
-
-### Force Enabling WinRM and skip profile check
-Enable-PSRemoting -SkipNetworkProfileCheck -Force
-
-# Set Trusted Hosts * for WinRM HTTPS
-Set-Item -Force wsman:\localhost\client\trustedhosts *
 
 </powershell>
 <persist>true</persist>

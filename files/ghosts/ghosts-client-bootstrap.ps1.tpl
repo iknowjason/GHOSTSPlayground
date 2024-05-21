@@ -95,6 +95,5 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 choco install microsoft-office-deployment --Force -y
 choco install firefox --Force -y
-#choco install dotnet4.7 --Force -y
 
 lwrite("End of ghosts client bootstrap")

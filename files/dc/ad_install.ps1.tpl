@@ -45,11 +45,30 @@ if ( $op -Contains $forest ){
 
   lwrite ("$mtime Run Install-ADDSForest")
   Install-ADDSForest -DomainName $forest -InstallDns -SafeModeAdministratorPassword $secure_string -Force:$true
-  lwrite ("$mtime Run shutdown")
-  shutdown -r -t 10
+  lwrite ("$mtime Run exit 3010")
+  #shutdown -r -t 10
+  exit 3010
 }
 
 lwrite("$mtime users file: $users_file")
+
+# verify forest is correct 
+$forestVerified = $false
+
+# Loop 5 times checking for forest
+for ($i = 0; $i -lt 5; $i++) {
+    $op = Get-WMIObject Win32_NTDomain | Select -ExpandProperty DnsForestName
+
+    if ($op -Contains $forest) {
+        $forestVerified = $true
+        break
+    } else {
+        $mtime = Get-Date
+        lwrite ("$mtime Forest not verified. Retrying in 30 seconds")
+        Start-Sleep -Seconds 30
+    }
+}
+
 $mtime = Get-Date
 lwrite ("$mtime Starting to verify AD forest for AD users")
 $op = Get-WMIObject Win32_NTDomain | Select -ExpandProperty DnsForestName
