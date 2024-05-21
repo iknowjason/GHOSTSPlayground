@@ -1,4 +1,4 @@
-# Automated Emulation with Caldera 5.0 Support!
+# GHOSTS Security Playground
 
 ## Overview
 
