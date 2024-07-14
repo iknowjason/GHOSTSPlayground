@@ -42,7 +42,7 @@ export AWS_SECRET_ACCESS_KEY="VALUE"
 ## Build and Destroy Resources
 
 ### Run terraform init
-Change into the AutomatedEmulation working directory and type:
+Change into the ```GHOSTSPlayground/code``` working directory and type:
 
 ```
 terraform init
@@ -80,9 +80,9 @@ locals {
 }
 ```
 
-### Caldera
+### GHOSTS
 
-**Caldera Linux Server**
+**GHOSTS Linux Server**
 
 Caldera is built on an Ubuntu Linux 22.04 AMI automatically with SSL support for admin console.  The following local project files are important for customization:
 
