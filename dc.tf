@@ -2,6 +2,10 @@
 # Built with Operator lab framework (https://operatorlab.cloud)
 # cmdline: python3 operator.py --ghosts -dc --windows 1 --siem elk -au 1000 --domain_join
 
+variable "ad_domain" {
+  default = "rtc.local"
+}
+
 variable "dc_hostname" {
   default = "dc"
 }
@@ -61,7 +65,7 @@ data "template_file" "ps_dc_template" {
     hostname                  = var.dc_hostname
     script_files              = join(",", local.script_files_win)
     s3_bucket                 = "${aws_s3_bucket.staging.id}"
-    ad_domain                 = "rtc.local"
+    ad_domain                 = var.ad_domain 
     region                    = var.region
     ad_install_script         = var.ad_install_ps1 
     admin_username            = "OpsAdmin"
@@ -104,7 +108,7 @@ data "template_file" "ad_install_ps1" {
     winrm_password            = "Esther-daisy-906270"
     admin_username            = "OpsAdmin"
     admin_password            = "Tegan-pepper-826627"
-    ad_domain                 = "rtc.local"
+    ad_domain                 = var.ad_domain 
     users_file                = var.users_file
     s3_bucket                 = "${aws_s3_bucket.staging.id}"
     region                    = var.region

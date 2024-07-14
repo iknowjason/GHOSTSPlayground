@@ -10,8 +10,13 @@ variable "windows_count" {
 variable "ghosts_zip" {
   description = "The filename of the Windows Ghosts client zip"
   type = string
-  #default = "ghosts-client-x64-v7.0.0.zip"
   default = "ghosts-client-x64-v8.0.0.zip"
+}
+
+variable "npc_sh" {
+  description = "The npc.sh script"
+  type = string
+  default = "npc.sh"
 }
 
 variable "application_json" {
@@ -81,4 +86,10 @@ resource "aws_s3_object" "ghosts_zip" {
   bucket = aws_s3_bucket.staging.id
   key    = var.ghosts_zip 
   source = "${path.module}/files/ghosts/${var.ghosts_zip}"
+}
+
+resource "aws_s3_object" "npc_sh" {
+  bucket = aws_s3_bucket.staging.id
+  key    = var.npc_sh
+  source = "${path.module}/files/ghosts/${var.npc_sh}"
 }

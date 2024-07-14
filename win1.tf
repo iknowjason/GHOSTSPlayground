@@ -5,12 +5,24 @@ variable "endpoint-ip-win1" {
   default = "10.100.20.10"
 }
 
+# Local Windows Administrator account
 variable "admin-username-win1" {
   default = "OpsAdmin"
 }
 
+# Local Windows Administrator account
 variable "admin-password-win1" {
   default = "Tegan-pepper-826627"
+}
+
+# The domain user who should be logged in when starting GHOSTS
+# Verify that this matches 'ad_users.csv'
+variable "ghosts_user" {
+  default = "RTC\\oliviaodinsdottir"
+}
+
+variable "ghosts_pass" {
+  default = "Esther-daisy-906270"
 }
 
 variable "join-domain-win1" {
@@ -35,7 +47,8 @@ data "aws_ami" "win1" {
 # EC2 Instance
 resource "aws_instance" "win1" {
   ami           = data.aws_ami.win1.id
-  instance_type = "t2.micro"
+  #instance_type = "t2.micro"
+  instance_type = "t3a.medium"
   key_name	= module.key_pair.key_pair_name
   subnet_id     = aws_subnet.user_subnet.id
   associate_public_ip_address = true
@@ -76,7 +89,7 @@ data "template_file" "ps_template_win1" {
     winrm_password            = "Esther-daisy-906270" 
     admin_username            = var.admin-username-win1
     admin_password            = var.admin-password-win1
-    ad_domain                 = "rtc.local"
+    ad_domain                 = var.ad_domain 
     script_files              = join(",", local.script_files_win)
     windows_msi               = "" 
     vclient_config            = "" 
@@ -98,7 +111,7 @@ resource "local_file" "debug-bootstrap-script-win1" {
 output "windows_endpoint_details_win1" {
   value = <<EOS
 -------------------------
-Virtual Machine ${aws_instance.win1.tags["Name"]}
+Virtual Machine - ${aws_instance.win1.tags["Name"]}
 -------------------------
 Instance ID:    ${aws_instance.win1.id}
 Computer Name:  ${aws_instance.win1.tags["Name"]}
@@ -106,6 +119,15 @@ Private IP:     ${var.endpoint-ip-win1}
 Public IP:      ${aws_instance.win1.public_ip}
 local Admin:    ${var.admin-username-win1}
 local password: ${var.admin-password-win1}
+------------------------------------------
+AFTER DOMAIN JOIN, starts GHOSTS on ${aws_instance.win1.tags["Name"]}
+------------------------------------------
+Step 1:  RDP in with credentials to ${aws_instance.win1.public_ip}
+User: ${var.ghosts_user} 
+Pass: ${var.ghosts_pass} 
+Step 2:  Run cmd.exe as Administrator and start ghosts.exe
+cd C:\Tools\ghosts\ghosts-client-x64-v8.0.0 (Elevated cmd.exe)
+.\ghosts.exe
 
 EOS
 }

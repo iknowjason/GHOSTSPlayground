@@ -119,4 +119,40 @@ done
 docker-compose up -d
 echo "GHOSTS Install complete"
 
+# npc.sh 
+echo "Get npc.sh"
+cd /home/ubuntu
+file="npc.sh"
+object_url="https://${s3_bucket}.s3.${region}.amazonaws.com/$file"
+echo "Downloading s3 object url: $object_url"
+for i in {1..5}
+do
+    echo "Download attempt: $i"
+    curl -O "$object_url"
+
+    if [ $? -eq 0 ]; then
+        echo "Download successful."
+        break
+    else
+        echo "Download failed. Retrying..."
+    fi
+done
+chmod +x /home/ubuntu/npc.sh
+echo "Get npc.sh complete"
+
+### Begin adding NPCs section
+echo "Begin adding NPCs"
+echo "sleep to make sure API server is ready"
+sleep 30
+
+# generate one npc
+echo "Run api /api/npcsgenerate/one"
+echo "Generate random NPC by random service branch"
+request1="http://127.0.0.1:5000/api/npcsgenerate/one"
+curl -X 'POST' \
+  "$request1" \
+  -H 'accept: application/json' \
+  -d ''
+echo "Request complete to api endpoint at /api/npcsgenerate/one" 
+
 echo "End of bootstrap script"

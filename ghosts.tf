@@ -1,6 +1,18 @@
 # Built with Operator lab framework (https://operatorlab.cloud)
 # cmdline: python3 operator.py --ghosts -dc --windows 1 --siem elk -au 1000 --domain_join
 
+locals {
+  # This is the npc.sh script to call from remote 
+  npc_ext_sh = templatefile("${path.module}/files/ghosts/npc-ext.sh.tpl", {
+    public_ip = aws_instance.ghosts_server.public_ip
+  })
+}
+
+resource "local_file" "npc_ext_sh" {
+  content  = local.npc_ext_sh
+  filename = "${path.module}/output/ghosts/npc-ext.sh"
+}
+
 variable "ghosts_server_instance_type" {
   description = "The AWS instance type to use for servers."
   default     = "t3a.medium"
