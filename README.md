@@ -151,7 +151,7 @@ C:\Terraform\caldera_log.log
 
 To modify this file locally, it is located in ```files\windows\caldera.ps1.tpl```
 
-### VECTR
+### Elastic 
 
 VECTR by Security Risk Advisors is installed automatically.  From their Github repo:
 
