@@ -22,7 +22,7 @@ See the **Features and Capabilities** section for more details.
 
 **Tested with:**
 
-* Mac OS 13.4
+* Mac OS 13.4 or Ubuntu 22.04
 * terraform 1.5.7
 
 **Clone this repository:**
