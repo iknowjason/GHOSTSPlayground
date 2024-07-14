@@ -4,7 +4,7 @@
 
 ## Overview
 
-GHOSTS Security Playground is a terraform template creating a lab implementation of the [GHOSTS](https://cmu-sei.github.io/GHOSTS/) NPC User simulation framework.  Additionally, it builds some capabilities for an AD pentest lab or Detection Engineering.  GHOSTS Security Playground is customizable and builds the following resources hosted in AWS:
+GHOSTS Security Playground is a terraform template creating a lab implementation of the [GHOSTS NPC User simulation framework](https://cmu-sei.github.io/GHOSTS/) created by Carnegie Mellon University.  Additionally, it builds some capabilities for an AD pentest lab or Detection Engineering.  GHOSTS Security Playground is customizable and builds the following resources hosted in AWS:
 
 * GHOSTS version 8.0 server with API and Grafana dashboards pre-loaded
 * One Active Directory Domain Controller loaded with 1,000 AD users, groups, and OUs
