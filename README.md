@@ -86,11 +86,14 @@ locals {
 
 GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
+| File        | Description  |
+| ------------- |:-------------:|
+| code/ghosts.tf      | The terraform file that builds the Linux server |
+| code/files/ghosts/dashboards.yml      | centered      |
+| code/files/ghosts/datasources.yml.tpl | are neat      |
+| code/files/ghosts/docker-compose.yml |   desc    |
+| code/files/ghosts/npc.sh  |  desc |
+| code/files/ghosts/npc-ext.sh.tpl |   desc |
 
 
 * ghosts.tf:  The terraform file that builds the Linux server and all terraform variables for Caldera.
