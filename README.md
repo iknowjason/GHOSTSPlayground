@@ -80,9 +80,7 @@ locals {
 }
 ```
 
-### GHOSTS
-
-**GHOSTS Linux Server**
+### GHOSTS Linux Server
 
 GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
@@ -134,9 +132,7 @@ SSH to GHOSTS
 ssh -i ssh_key.pem ubuntu@3.15.227.53
 ```
 
-### Elastic 
-
-**Elastic Linux Server**
+### Elastic Search Linux Server
 
 The Elastic Linux server system includes Kibana and is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
