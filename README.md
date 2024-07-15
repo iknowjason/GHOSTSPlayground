@@ -84,9 +84,16 @@ locals {
 
 **GHOSTS Linux Server**
 
-Caldera is built on an Ubuntu Linux 22.04 AMI automatically with SSL support for admin console.  The following local project files are important for customization:
+GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
-* bas.tf:  The terraform file that builds the Linux server and all terraform variables for Caldera.
+| Tables        | Are           | Cool  |
+| ------------- |:-------------:| -----:|
+| col 3 is      | right-aligned | $1600 |
+| col 2 is      | centered      |   $12 |
+| zebra stripes | are neat      |    $1 |
+
+
+* ghosts.tf:  The terraform file that builds the Linux server and all terraform variables for Caldera.
 * files/bas/bootstrap.sh.tpl:  The boostrap script for Caldera and other services.
 * files/bas/local.yml.tpl:  The Caldera configuration file that is automatically deployed
 * files/bas/caldera.service:  The caldera service file that is automatically installed
