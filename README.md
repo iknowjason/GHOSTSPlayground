@@ -134,7 +134,7 @@ ssh -i ssh_key.pem ubuntu@3.15.227.53
 
 ### Elastic Search Linux Server
 
-The Elastic Search Linux server system includes Kibana and is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
+As of July 2024, this automatically deploys a docker deployment of Elastic 8.9.1.  The Elastic Search Linux server system includes Kibana and is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
 | File        | Description  |
 | ------------- |:-------------:|
@@ -162,7 +162,7 @@ tail -f /var/log/user-data.log
 
 **Customize Elastic Linux Server:**
 
-To customize the Elastic Search Linux server, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```elastic.tf```.  
+To customize the Elastic Search Linux server, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```elastic.tf```.  You can modify the elastic username (elastic_username) and password (elastic_password) variables.
 
 **Teraform Output:**
 
