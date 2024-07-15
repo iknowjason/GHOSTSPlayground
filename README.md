@@ -89,21 +89,14 @@ GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ``
 | File        | Description  |
 | ------------- |:-------------:|
 | code/ghosts.tf      | The terraform file that builds the Linux server |
-| code/files/ghosts/dashboards.yml      | centered      |
-| code/files/ghosts/datasources.yml.tpl | are neat      |
-| code/files/ghosts/docker-compose.yml |   desc    |
-| code/files/ghosts/npc.sh  |  desc |
-| code/files/ghosts/npc-ext.sh.tpl |   desc |
+| code/files/ghosts/bootstrap.sh.tpl | The boostrap script |
+| code/files/ghosts/dashboards.yml      | grafana dashboards config      |
+| code/files/ghosts/datasources.yml.tpl | grafana config for datasources      |
+| code/files/ghosts/docker-compose.yml |   ghosts docker compose    |
+| code/files/ghosts/npc.sh  |  a script loaded onto the server for api commands |
+| code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely |
 
-
-* ghosts.tf:  The terraform file that builds the Linux server and all terraform variables for Caldera.
-* files/bas/bootstrap.sh.tpl:  The boostrap script for Caldera and other services.
-* files/bas/local.yml.tpl:  The Caldera configuration file that is automatically deployed
-* files/bas/caldera.service:  The caldera service file that is automatically installed
-* files/bas/abilities/:  A local directory with custom abilities that will automatically deploy to the caldera server in ```/opt/caldera/data/abilities```
-* files/bas/payloads/:  A local directory with custom payloads that will automatically deploy to the caldera server in ```/opt/caldera/data/payloads```
-
-**Troubleshooting Caldera:**
+**Troubleshooting GHOSTS Linux Server:**
 
 SSH into the Caldera server by looking in ```terraform output``` for this line:  
 ```
@@ -114,7 +107,7 @@ Once in the system, tail the user-data logfile.  You will see the steps from the
 tail -f /var/log/user-data.log
 ```
 
-**Customiz Caldera Linux:**
+**Customize GHOSTS Linux Server:**
 
 To customize Caldera, you can modify the default admin credentials for red, blue and api keys in ```bas.tf```.  For other customizations, you can modify the ```local.yml.tpl``` Caldera configuration file.
 
