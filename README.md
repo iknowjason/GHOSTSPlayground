@@ -180,9 +180,9 @@ SSH to Kibana
 ssh -i ssh_key.pem ubuntu@3.15.19.102
 ```
 
-### Active Directory Domain Controller (DC)
+### Windows Server:  Active Directory Domain Controller (DC)
 
-GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
+A Windows Server 2022 AMI is built using an Amazon owned image.   Active Directory Domain Services is installed with a forest using ```user-data``` feature of AWS to bootstrap the services using powershell.  An CSV file is uploaded to S3 and then a special bootstrap script downloads the CSV file and imports in all AD users.  The following local project files are important for customization:
 
 | File        | Description  |
 | ------------- |:-------------:|
