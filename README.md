@@ -71,12 +71,17 @@ terraform output
 
 ## Estimated Cost (Just a Guess)
 
-| System       | Instance  | Hourly Cost  |
-| ------------- |:-------------:|:-------:|
-|  GHOSTS     | lbah |    |
-|  Elastic    | blah |    |
-|  DC         | blah |    |
-|  Win Client | blah |    |
+As this tool spins up cloud resources, it will result in charges to your AWS account. Efforts have been made to minimize the costs incurred and research the best options for most uses cases. The best way to use this is reference the estimated cost below, check your AWS costs daily, and verify them against this information included below. Be sure to tear down all resources when not using them.  See the ```AWS Pricing Calculator```:
+https://calculator.aws/#/
+
+| System       | Instance  | Hourly Cost  | Default Region |
+| ------------- |:-------------:|:-------:|:-------:|
+|  GHOSTS     | t3a.medium | $0.0376   | us-east-2 |
+|  Elastic    | t2.xlarge | $0.1856   | us-east-2 |
+|  DC         | t2.small |  $0.023  | us-east-2 |
+|  Win Client | t3a.medium |  $0.0376   | us-east-2 |
+
+**Note:**  The 
 
 
 ## Details
