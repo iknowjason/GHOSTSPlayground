@@ -261,7 +261,11 @@ The Windows Client system is built from ```win1.tf```.  Windows Server 2022 Data
 C:\Terraform\bootstrap_log.log
 ```
 
-**Caldera on Windows Client:**
+**Customizing Build Scripts**
+
+For adding new scripts for a customized deployment, reference the arrays in ```scripts.tf``` and ```s3.tf```.  For more complex deployments, the Windows system is built to have flexibility for adding customized scripts for post-deployment configuration management.  This gets around the size limit of user-data not exceeding 16KB in size.  The s3 bucket is used for staging to upload and download scripts, files, and any artifacts needed.  How this is done:  A small master script is always deployed via user-data.  This script has instructions to download additional scripts.  This is under your control and is configured in ```scripts.tf``` and ```s3.tf```.  In ```scripts.tf```, take a look at the array called ```templatefiles```.  Add any custom terraform templatefiles here and then add them locally to ```files/windows```.  See the ```red.ps1.tpl``` and ```sysmon.ps1.tpl``` files as an example.  The file should end in ```tpl```.  This template file is generated as output into the directory called ```output```.  The terraform code strips off the ```.tpl``` in the filename when it generates into the ```output``` directory.  Make sure the filename is correct because the master script downloads based on this name.  In ```s3.tf```, each little script referenced in ```templatefiles``` is uploaded.  The master bootstrap script has a reference to this array.  It will automatically download all generated scripts from the ```templatefiles``` array and execute each script.
+
+**GHOSTS on Windows Client:**
 
 The Caldera sandcat agent is automatically installed and launches on the Windows client system.  The bootstrap script waits until Caldera is up and available, then installs Sandcat caldera agent.  It should look like this.
 
@@ -272,23 +276,29 @@ C:\Terraform\caldera_log.log
 
 To modify this file locally, it is located in ```files\windows\caldera.ps1.tpl```
 
-**Customizing Build Scripts**
-
-For adding new scripts for a customized deployment, reference the arrays in ```scripts.tf``` and ```s3.tf```.  For more complex deployments, the Windows system is built to have flexibility for adding customized scripts for post-deployment configuration management.  This gets around the size limit of user-data not exceeding 16KB in size.  The s3 bucket is used for staging to upload and download scripts, files, and any artifacts needed.  How this is done:  A small master script is always deployed via user-data.  This script has instructions to download additional scripts.  This is under your control and is configured in ```scripts.tf``` and ```s3.tf```.  In ```scripts.tf```, take a look at the array called ```templatefiles```.  Add any custom terraform templatefiles here and then add them locally to ```files/windows```.  See the ```red.ps1.tpl``` and ```sysmon.ps1.tpl``` files as an example.  The file should end in ```tpl```.  This template file is generated as output into the directory called ```output```.  The terraform code strips off the ```.tpl``` in the filename when it generates into the ```output``` directory.  Make sure the filename is correct because the master script downloads based on this name.  In ```s3.tf```, each little script referenced in ```templatefiles``` is uploaded.  The master bootstrap script has a reference to this array.  It will automatically download all generated scripts from the ```templatefiles``` array and execute each script.
 
 **Terraform Outputs**
 
 See the output from ```terraform output``` to get the IP address and credentials for RDP:
 ```
 -------------------------
-Virtual Machine win1
+Virtual Machine - win1
 -------------------------
-Instance ID: i-0eecf5439b1d8080b
+Instance ID:    i-09499cb3e4f5965ab
 Computer Name:  win1
-Private IP: 10.100.20.10
-Public IP:  18.119.101.237
-local Admin:  RTCAdmin
-local password: wOFVYKYlk2
+Private IP:     10.100.20.10
+Public IP:      3.17.14.145
+local Admin:    OpsAdmin
+local password: Tegan-pepper-826627
+------------------------------------------
+AFTER DOMAIN JOIN, starts GHOSTS on win1
+------------------------------------------
+Step 1:  RDP in with credentials to 3.17.14.145
+User: RTC\oliviaodinsdottir
+Pass: Esther-daisy-906270
+Step 2:  Run cmd.exe as Administrator and start ghosts.exe
+cd C:\Tools\ghosts\ghosts-client-x64-v8.0.0 (Elevated cmd.exe)
+.\ghosts.exe
 ```
 
 ### Red Tools
