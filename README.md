@@ -184,12 +184,12 @@ ssh -i ssh_key.pem ubuntu@3.15.19.102
 
 A Windows Server 2022 AMI is built using an Amazon owned image.   Active Directory Domain Services is installed with a forest using ```user-data``` feature of AWS to bootstrap the services using powershell.  An CSV file is uploaded to S3 and then a special bootstrap script downloads the CSV file and imports in all AD users.  The following local project files are important for customization:
 
-| File        | Description  |
-| ------------- |:-------------:|
-| code/dc.tf      | The terraform file that builds the DC |
-| code/files/dc/ad_install.ps1.tpl | The powershell script that installs AD DS and Forest.  Outputs to code/output/dc/ad_install.ps1 |
-| code/files/dc/bootstrap-dc.ps1.tpl | The main powershell script for the DC that bootstraps.  Outputs to code/output/dc/bootstrap-dc1.ps1    |
-| code/ad_users.csv | The list of Active Directory users in CSV   |
+| File        | Description  | Output  |
+| ------------- |:-------------:|:-------:|
+| code/dc.tf      | The terraform file that builds the DC |  |
+| code/files/dc/ad_install.ps1.tpl | The powershell script that installs AD DS and Forest. | code/output/dc/ad_install.ps1 |
+| code/files/dc/bootstrap-dc.ps1.tpl | The main powershell script for the DC that bootstraps.  | code/output/dc/bootstrap-dc1.ps1    |
+| code/ad_users.csv | The list of Active Directory users in CSV   |  |
 
 **Troubleshooting Windows DC:**
 
