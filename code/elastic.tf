@@ -2,6 +2,21 @@
 # Built with Operator lab framework (https://operatorlab.cloud)
 # cmdline: python3 operator.py --ghosts -dc --windows 1 --siem elk -au 1000 --domain_join
 
+locals {
+  bootstrap_elastic_sh = templatefile("files/elastic/bootstrap.sh.tpl", {
+    s3_bucket                 = "${aws_s3_bucket.staging.id}"
+    region                    = var.region
+    elastic_username          = var.elastic_username
+    elastic_password          = var.elastic_password
+    hostname                  = var.hostname
+  })
+}
+
+resource "local_file" "bootstrap_elastic_sh" {
+  content  = local.bootstrap_elastic_sh
+  filename = "${path.module}/output/elastic/bootstrap.sh"
+}
+
 variable "elastic_username" {
   description = "The elastic username for bootstrap and logging into kibana initially"
   default     = "elastic"
@@ -153,13 +168,7 @@ resource "aws_instance" "elk_server" {
     delete_on_termination = "true"
   }
 
-  user_data = templatefile("files/elastic/bootstrap.sh.tpl", {
-    s3_bucket                 = "${aws_s3_bucket.staging.id}" 
-    region                    = var.region
-    elastic_username          = var.elastic_username
-    elastic_password          = var.elastic_password
-    hostname                  = var.hostname
-  })
+  user_data = local.bootstrap_elastic_sh
 
 }
 
