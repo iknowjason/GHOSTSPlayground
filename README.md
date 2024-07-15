@@ -89,7 +89,7 @@ GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ``
 | File        | Description  |
 | ------------- |:-------------:|
 | code/ghosts.tf      | The terraform file that builds the Linux server |
-| code/files/ghosts/bootstrap.sh.tpl | The bootstrap script |
+| code/files/ghosts/bootstrap.sh.tpl | The bootstrap script. Outputs the templatefile to code/output/ghosts/bootstrap.sh |
 | code/files/ghosts/dashboards.yml      | grafana dashboards config      |
 | code/files/ghosts/datasources.yml.tpl | grafana config for datasources.  Outputs the templatfile to code/output/ghosts/datasources.yml      |
 | code/files/ghosts/docker-compose.yml |   ghosts docker compose    |
