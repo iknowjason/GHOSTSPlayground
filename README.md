@@ -186,15 +186,12 @@ A Windows Server 2022 AMI is built using an Amazon owned image.   Active Directo
 
 | File        | Description  |
 | ------------- |:-------------:|
-| code/ghosts.tf      | The terraform file that builds the Linux server |
-| code/files/ghosts/bootstrap.sh.tpl | The bootstrap script. Outputs to code/output/ghosts/bootstrap.sh |
-| code/files/ghosts/dashboards.yml      | grafana dashboards config      |
-| code/files/ghosts/datasources.yml.tpl | grafana config for datasources.  Outputs to code/output/ghosts/datasources.yml      |
-| code/files/ghosts/docker-compose.yml |   ghosts docker compose    |
-| code/files/ghosts/npc.sh  |  a script loaded onto the server for localhost api commands |
-| code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely.  Outputs to code/output/ghosts/npc-ext.sh |
+| code/dc.tf      | The terraform file that builds the DC |
+| code/files/dc/ad_install.ps1.tpl | desc |
+| code/files/dc/bootstrap-dc.ps1.tpl      | dsc     |
+| code/ad_users.csv | desc      |
 
-**Troubleshooting GHOSTS Linux Server:**
+**Troubleshooting Windows DC:**
 
 SSH into the GHOSTS server by looking in ```terraform output``` for this line:  
 ```
@@ -207,29 +204,26 @@ Once in the system, tail the user-data logfile.  You will see the steps from the
 tail -f /var/log/user-data.log
 ```
 
-**Customize GHOSTS Linux Server:**
+**Customize Windows DC Server:**
 
 To customize GHOSTS, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```ghosts.tf```.  
 
 **Teraform Output:**
 
-View the terraform outputs for important GHOSTS Linux access information:
+View the terraform outputs for important Windows AD Domain and machine access information:
 ```
-GHOSTS Grafana Console:
-----------------
-http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:3000
-
-GHOSTS Grafana Credentials:
---------------------
-admin:admin
-
-GHOSTS API Server
------------------
-http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:5000
-
-SSH to GHOSTS
---------------
-ssh -i ssh_key.pem ubuntu@3.15.227.53
+-------------------------
+Domain Controller and AD Details
+-------------------------
+Instance ID:            i-01fde1663cbafecd9
+Computer Name:          dc
+Private IP:             10.100.10.4
+Public IP:              18.189.21.74
+local Admin:            OpsAdmin
+local password:         Tegan-pepper-826627
+Domain:                 rtc.local
+Domain Admin Username:  jasonlindqvist
+Domain Admin Password:  Rue-biggie-619140
 ```
 
 ### Windows Client
