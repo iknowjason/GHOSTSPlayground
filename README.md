@@ -156,6 +156,10 @@ SSH to GHOSTS
 ssh -i ssh_key.pem ubuntu@3.15.227.53
 ```
 
+**Creating NPCs:**
+
+Some steps here.
+
 ### Elastic Search Linux Server
 
 As of July 2024, this automatically deploys a docker deployment of Elastic 8.9.1.  The Elastic Search Linux server system includes Kibana and is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
@@ -331,6 +335,9 @@ cd C:\Tools\ghosts\ghosts-client-x64-v8.0.0 (Elevated cmd.exe)
 .\ghosts.exe
 ```
 
+**Elastic Winlogbeat on Windows Client:**
+
+The GHOSTS Windows client automatically deploys onto this win1 system.  The important files that can be used for customization include:
 
 
 ### Red Tools
