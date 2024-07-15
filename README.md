@@ -69,6 +69,16 @@ The lab has been created with important terraform outputs showing services, endp
 terraform output
 ```
 
+## Estimated Cost (Just a Guess)
+
+| System       | Instance  | Hourly Cost  |
+| ------------- |:-------------:|:-------:|
+|  GHOSTS     | lbah |    |
+|  Elastic    | blah |    |
+|  DC         | blah |    |
+|  Win Client | blah |    |
+
+
 ## Details
 
 ### Important Firewall and White Listing
