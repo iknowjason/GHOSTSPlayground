@@ -180,24 +180,57 @@ SSH to Kibana
 ssh -i ssh_key.pem ubuntu@3.15.19.102
 ```
 
-### Red Tools
+### Active Directory Domain Controller (DC)
 
-On the Windows Client system, the following tools are automatically deployed into ```C:\Tools\```:
+GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
-* Atomic Red Team (ART)
-* PurpleSharp
+| File        | Description  |
+| ------------- |:-------------:|
+| code/ghosts.tf      | The terraform file that builds the Linux server |
+| code/files/ghosts/bootstrap.sh.tpl | The bootstrap script. Outputs to code/output/ghosts/bootstrap.sh |
+| code/files/ghosts/dashboards.yml      | grafana dashboards config      |
+| code/files/ghosts/datasources.yml.tpl | grafana config for datasources.  Outputs to code/output/ghosts/datasources.yml      |
+| code/files/ghosts/docker-compose.yml |   ghosts docker compose    |
+| code/files/ghosts/npc.sh  |  a script loaded onto the server for localhost api commands |
+| code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely.  Outputs to code/output/ghosts/npc-ext.sh |
 
-The local bootstrap script for customization is ```files\windows\red.ps1.tpl```
+**Troubleshooting GHOSTS Linux Server:**
 
-To track monitoring of the deployment on the Windows Client, see the logfile at ```C:\Terraform\red_log.log```
+SSH into the GHOSTS server by looking in ```terraform output``` for this line:  
+```
+SSH to GHOSTS
+--------------
+ssh -i ssh_key.pem ubuntu@3.128.120.18
+```
+Once in the system, tail the user-data logfile.  You will see the steps from the ```code/files/ghosts/bootstrap.sh.tpl``` script running:
+```
+tail -f /var/log/user-data.log
+```
 
-### Blue Tools
+**Customize GHOSTS Linux Server:**
 
-Sysmon service and customized configuration (SwiftOnSecurity) is deployed onto the Windows Client system.  To update the sysmon version and configuration, make changes inside the ```files\sysmon``` directory.
+To customize GHOSTS, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```ghosts.tf```.  
 
-The local bootstrap script for customization is ```files\windows\sysmon.ps1.tpl```
+**Teraform Output:**
 
-To track monitoring of the deployment on the Windows Client, see the logfile at ```C:\Terraform\blue_log.log```
+View the terraform outputs for important GHOSTS Linux access information:
+```
+GHOSTS Grafana Console:
+----------------
+http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:3000
+
+GHOSTS Grafana Credentials:
+--------------------
+admin:admin
+
+GHOSTS API Server
+-----------------
+http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:5000
+
+SSH to GHOSTS
+--------------
+ssh -i ssh_key.pem ubuntu@3.15.227.53
+```
 
 ### Windows Client
 
@@ -236,6 +269,25 @@ Public IP:  18.119.101.237
 local Admin:  RTCAdmin
 local password: wOFVYKYlk2
 ```
+
+### Red Tools
+
+On the Windows Client system, the following tools are automatically deployed into ```C:\Tools\```:
+
+* Atomic Red Team (ART)
+* PurpleSharp
+
+The local bootstrap script for customization is ```files\windows\red.ps1.tpl```
+
+To track monitoring of the deployment on the Windows Client, see the logfile at ```C:\Terraform\red_log.log```
+
+### Blue Tools
+
+Sysmon service and customized configuration (SwiftOnSecurity) is deployed onto the Windows Client system.  To update the sysmon version and configuration, make changes inside the ```files\sysmon``` directory.
+
+The local bootstrap script for customization is ```files\windows\sysmon.ps1.tpl```
+
+To track monitoring of the deployment on the Windows Client, see the logfile at ```C:\Terraform\blue_log.log```
 
 ### Linux
 
