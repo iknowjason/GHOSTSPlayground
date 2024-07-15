@@ -144,11 +144,13 @@ The Elastic Linux server system includes Kibana and is built on an Ubuntu Linux 
 | ------------- |:-------------:|
 | code/elastic.tf      | The terraform file that builds the Linux server |
 | code/files/elastic/bootstrap.sh.tpl | The bootstrap script. Outputs to code/output/ghosts/bootstrap.sh |
-| code/files/ghosts/dashboards.yml      | grafana dashboards config      |
-| code/files/ghosts/datasources.yml.tpl | grafana config for datasources.  Outputs to code/output/ghosts/datasources.yml      |
-| code/files/ghosts/docker-compose.yml |   ghosts docker compose    |
-| code/files/ghosts/npc.sh  |  a script loaded onto the server for localhost api commands |
-| code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely.  Outputs to code/output/ghosts/npc-ext.sh |
+| code/files/elastic/elasticsearch.service      | grafana dashboards config      |
+| code/files/elastic/elasticsearch.yml.tpl | grafana config for datasources.  Outputs to code/output/ghosts/datasources.yml      |
+| code/files/elastic/kibana.service |   ghosts docker compose    |
+| code/files/elastic/kibana.yml.tpl  |  a script loaded onto the server for localhost api commands |
+| code/files/elastic/logstash.conf.tpl |   a script to run api commands remotely.  Outputs to code/output/ghosts/npc-ext.sh |
+| code/files/elastic/logstash.service  | desc  |
+| code/files/elastic/logstash.yml  | desc |
 
 **Troubleshooting Elastic Linux Server:**
 
