@@ -111,9 +111,9 @@ tail -f /var/log/user-data.log
 
 **Customize GHOSTS Linux Server:**
 
-To customize GHOSTS, you can modify the default admin credentials for red, blue and api keys in ```bas.tf```.  For other customizations, you can modify the ```local.yml.tpl``` Caldera configuration file.
+To customize GHOSTS, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```ghosts.tf```.  
 
-You can create custom abilities in your project that get automatically loaded into Caldera.  This image shows a custom ability for lateral-movement that is built locally from ```files/bas/abilities/lateral-movement/```.
+
 
 **Teraform Output:**
 
