@@ -136,16 +136,16 @@ ssh -i ssh_key.pem ubuntu@3.15.227.53
 
 As of July 2024, this automatically deploys a docker deployment of Elastic 8.9.1.  The Elastic Search Linux server system includes Kibana and is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
-| File        | Description  |
-| ------------- |:-------------:|
-| code/elastic.tf      | The terraform file that builds the Linux server |
-| code/files/elastic/bootstrap.sh.tpl | The bootstrap script. Outputs to code/output/elastic/bootstrap.sh |
+| File        | Description  | Output  |
+| ------------- |:-------------:|:-------:|
+| code/elastic.tf      | The terraform file that builds the Linux server |  |
+| code/files/elastic/bootstrap.sh.tpl | The bootstrap script. | code/output/elastic/bootstrap.sh |
 | code/files/elastic/elasticsearch.service      | service for elasticsearch      |
-| code/files/elastic/elasticsearch.yml.tpl | elasticsearch server config.  Outputs to code/output/elastic/elasticsearch.yml      |
-| code/files/elastic/kibana.service |   service for kibana    |
-| code/files/elastic/kibana.yml.tpl  |  kibana server config.  Outputs to code/output/elastic/kibana.yml |
-| code/files/elastic/logstash.conf.tpl |   logstash server config.  Outputs to code/output/elastic/logstash.conf |
-| code/files/elastic/logstash.service  | service for logstash  |
+| code/files/elastic/elasticsearch.yml.tpl | elasticsearch server config.  | code/output/elastic/elasticsearch.yml      |
+| code/files/elastic/kibana.service |   service for kibana    |   |
+| code/files/elastic/kibana.yml.tpl  |  kibana server config.  | code/output/elastic/kibana.yml |
+| code/files/elastic/logstash.conf.tpl |   logstash server config.  | code/output/elastic/logstash.conf |
+| code/files/elastic/logstash.service  | service for logstash  |   |
 
 **Troubleshooting Elastic Linux Server:**
 
