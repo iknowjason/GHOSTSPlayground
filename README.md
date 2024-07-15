@@ -164,11 +164,11 @@ As of July 2024, this automatically deploys a docker deployment of Elastic 8.9.1
 | ------------- |:-------------:|:-------:|
 | code/elastic.tf      | The terraform file that builds the Linux server |  |
 | code/files/elastic/bootstrap.sh.tpl | The bootstrap script. | code/output/elastic/bootstrap.sh |
-| code/files/elastic/elasticsearch.service      | service for elasticsearch      |
 | code/files/elastic/elasticsearch.yml.tpl | elasticsearch server config.  | code/output/elastic/elasticsearch.yml      |
-| code/files/elastic/kibana.service |   service for kibana    |   |
 | code/files/elastic/kibana.yml.tpl  |  kibana server config.  | code/output/elastic/kibana.yml |
 | code/files/elastic/logstash.conf.tpl |   logstash server config.  | code/output/elastic/logstash.conf |
+| code/files/elastic/elasticsearch.service      | service for elasticsearch      |
+| code/files/elastic/kibana.service |   service for kibana    |   |
 | code/files/elastic/logstash.service  | service for logstash  |   |
 
 **Troubleshooting Elastic Linux Server:**
