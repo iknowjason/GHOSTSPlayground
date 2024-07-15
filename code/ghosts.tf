@@ -6,6 +6,17 @@ locals {
   npc_ext_sh = templatefile("${path.module}/files/ghosts/npc-ext.sh.tpl", {
     public_ip = aws_instance.ghosts_server.public_ip
   })
+
+  ghosts_bootstrap_sh = templatefile("files/ghosts/bootstrap.sh.tpl", {
+    s3_bucket                 = "${aws_s3_bucket.staging.id}"
+    region                    = var.region
+  })
+  
+}
+
+resource "local_file" "ghosts_bootstrap_sh" {
+  content  = local.ghosts_bootstrap_sh
+  filename = "${path.module}/output/ghosts/bootstrap.sh"
 }
 
 resource "local_file" "npc_ext_sh" {
@@ -167,11 +178,7 @@ resource "aws_instance" "ghosts_server" {
     delete_on_termination = "true"
   }
 
-  user_data = templatefile("files/ghosts/bootstrap.sh.tpl", {
-    s3_bucket                 = "${aws_s3_bucket.staging.id}" 
-    region                    = var.region
-  })
-
+  user_data = local.ghosts_bootstrap_sh
 }
 
 output "Ghosts_server_details" {
