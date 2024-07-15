@@ -113,33 +113,27 @@ tail -f /var/log/user-data.log
 
 To customize GHOSTS, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```ghosts.tf```.  
 
-
-
 **Teraform Output:**
 
-View the terraform outputs for important Caldera access information:
+View the terraform outputs for important GHOSTS Linux access information:
 ```
--------
-Caldera Console
--------
-https://ec2-18-224-151-55.us-east-2.compute.amazonaws.com:8443
+GHOSTS Grafana Console:
+----------------
+http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:3000
 
-Caldera Console Credentials
--------------------
-blue:Caldera2024
-red:Caldera2024
-admin:Caldera2024
+GHOSTS Grafana Credentials:
+--------------------
+admin:admin
 
-API Keys
---------
-api_key_blue: blueadmin2024
-api_key_red: redadmin2024
+GHOSTS API Server
+-----------------
+http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:5000
 
-Caldera API Cheat Sheet
------------------------
-<CUSTOM>
+SSH to GHOSTS
 --------------
+ssh -i ssh_key.pem ubuntu@3.15.227.53
 ```
+
 **Caldera on Windows Client:**
 
 The Caldera sandcat agent is automatically installed and launches on the Windows client system.  The bootstrap script waits until Caldera is up and available, then installs Sandcat caldera agent.  It should look like this.
