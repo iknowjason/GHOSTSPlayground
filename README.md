@@ -209,7 +209,7 @@ The script checks to make sure the forest has been installed with the correct in
 
 **Customize Windows DC Server:**
 
-To customize GHOSTS, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```ghosts.tf```.  
+To customize DC, you can modify the AD domain, local admin/password, and WinRM username/password in ```dc.tf```.  The ```ad_users.csv``` file includes all Domain users, groups, and OUs that attempt to get loaded into AD. 
 
 **Teraform Output:**
 
