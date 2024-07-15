@@ -84,15 +84,15 @@ locals {
 
 GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
-| File        | Description  |
-| ------------- |:-------------:|
-| code/ghosts.tf      | The terraform file that builds the Linux server |
-| code/files/ghosts/bootstrap.sh.tpl | The bootstrap script. Outputs to code/output/ghosts/bootstrap.sh |
-| code/files/ghosts/dashboards.yml      | grafana dashboards config      |
-| code/files/ghosts/datasources.yml.tpl | grafana config for datasources.  Outputs to code/output/ghosts/datasources.yml      |
-| code/files/ghosts/docker-compose.yml |   ghosts docker compose    |
-| code/files/ghosts/npc.sh  |  a script loaded onto the server for localhost api commands |
-| code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely.  Outputs to code/output/ghosts/npc-ext.sh |
+| File        | Description  | Output  |
+| ------------- |:-------------:|:-------:|
+| code/ghosts.tf      | The terraform file that builds the Linux server |    |
+| code/files/ghosts/bootstrap.sh.tpl | The main bootstrap script. | code/output/ghosts/bootstrap.sh |
+| code/files/ghosts/dashboards.yml      | grafana dashboards config      |   |
+| code/files/ghosts/datasources.yml.tpl | grafana config for datasources. | code/output/ghosts/datasources.yml      |
+| code/files/ghosts/docker-compose.yml |   ghosts docker compose    |    |
+| code/files/ghosts/npc.sh  |  a script loaded onto the server for localhost api commands |    |
+| code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely.  | code/output/ghosts/npc-ext.sh |
 
 **Troubleshooting GHOSTS Linux Server:**
 
