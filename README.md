@@ -265,11 +265,11 @@ The following files are some of the powershell bootstrap scripts used to build t
 
 | File        | Description  | Output  |
 | ------------- |:-------------:|:-------:|
-| code/win1.tf      | The terraform file that builds the Linux server |    |
-| code/files/windows/bootstrap-win.ps1.tpl | The main bootstrap script. | code/output/ghosts/bootstrap.sh |
-| code/files/windows/red.ps1.tpl      | grafana dashboards config      |   |
-| code/files/windows/sysmon.ps1.tpl   |                     |   |
-| code/files/windows/winlogbeat.ps1.tpl  |     |    |
+| code/win1.tf      | The terraform file that builds the win1 client |    |
+| code/files/windows/bootstrap-win.ps1.tpl | The main bootstrap pwsh script for win1 | code/output/windows/bootstrap-win1.ps1 |
+| code/files/windows/red.ps1.tpl      |      | code/output/windows/red.ps1   |
+| code/files/windows/sysmon.ps1.tpl   |    |  code/output/windows/sysmon.ps1 |
+| code/files/windows/winlogbeat.ps1.tpl  |     |  code/output/windows/winlogbeat.ps1  |
 | code/files/ghosts/ghosts-client-bootstrap.ps1.tpl  |        |
 
 **Customizing Build Scripts**
