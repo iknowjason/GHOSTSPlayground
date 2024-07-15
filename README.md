@@ -93,6 +93,7 @@ GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ``
 | code/files/ghosts/docker-compose.yml |   ghosts docker compose    |    |
 | code/files/ghosts/npc.sh  |  a script loaded onto the server for localhost api commands |    |
 | code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely.  | code/output/ghosts/npc-ext.sh |
+| code/s3-ghosts.tf | Uploads some of the ghosts linux files to s3 bucket |   |
 
 **Troubleshooting GHOSTS Linux Server:**
 
