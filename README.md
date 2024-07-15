@@ -72,6 +72,7 @@ terraform output
 ## Estimated Cost (Just a Guess)
 
 As this tool spins up cloud resources, it will result in charges to your AWS account. Efforts have been made to minimize the costs incurred and research the best options for most uses cases. The best way to use this is reference the estimated cost below, check your AWS costs daily, and verify them against this information included below. Be sure to tear down all resources when not using them.  See the ```AWS Pricing Calculator```:
+
 https://calculator.aws/#/
 
 | System       | Instance  | Hourly Cost  | Default Region |
@@ -81,8 +82,15 @@ https://calculator.aws/#/
 |  DC         | t2.small |  $0.023  | us-east-2 |
 |  Win Client | t3a.medium |  $0.0376   | us-east-2 |
 
-**Note:**  The 
+**Note:**  A couple of the systems use larger EBS volumes for data storage.  You can see the EBS pricing estimator to get exact prices:
 
+https://aws.amazon.com/ebs/pricing/
+
+GHOSTS system uses a gp2 volume of 96 GB which calculates to $0.10 per GB-month of provisioned storage or $9.6 per month.  Seems to be calculated hourly.
+
+The Elastic Search system uses a gp2 volume of 100 GB which calculates to $0.10 per GB-month of provisioned storage or $10 per month.
+
+The DC system uses a gp2 volume of 90 GB which calculates to $0.10 per GB-month of provisioned storage or $9 per month.  Seems to be calculated hourly.
 
 ## Details
 
