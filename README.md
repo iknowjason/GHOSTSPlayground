@@ -255,11 +255,22 @@ Domain Admin Password:  Rue-biggie-619140
 
 ### Windows Client
 
-The Windows Client system is built from ```win1.tf```.  Windows Server 2022 Datacenter edition is currently used.  You can upload your own AMI image and change the data reference in win1.tf.  The local bootstrap script is located in ```files/windows/bootstrap-win.ps1.tpl```.  RDP into the Windows system and follow this logfile to see how the system is bootstrapping:
+The Windows Client system is built from ```win1.tf```.  Windows Server 2022 Datacenter edition is currently used.  You can upload your own AMI image and change the data reference in win1.tf.  The local bootstrap script is located in ```code/files/windows/bootstrap-win.ps1.tpl```.  RDP into the Windows system and follow this logfile to see how the system is bootstrapping:
 
 ```
 C:\Terraform\bootstrap_log.log
 ```
+
+The following files are some of the powershell bootstrap scripts used to build the ```win1``` client:
+
+| File        | Description  | Output  |
+| ------------- |:-------------:|:-------:|
+| code/win1.tf      | The terraform file that builds the Linux server |    |
+| code/files/windows/bootstrap-win.ps1.tpl | The main bootstrap script. | code/output/ghosts/bootstrap.sh |
+| code/files/windows/red.ps1.tpl      | grafana dashboards config      |   |
+| code/files/windows/sysmon.ps1.tpl   |                     |   |
+| code/files/windows/winlogbeat.ps1.tpl  |     |    |
+| code/files/ghosts/ghosts-client-bootstrap.ps1.tpl  |        |
 
 **Customizing Build Scripts**
 
