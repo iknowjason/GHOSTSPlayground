@@ -209,7 +209,7 @@ The script checks to make sure the forest has been installed with the correct in
 
 **Customize Windows DC Server:**
 
-To customize DC, you can modify the AD domain, local admin/password, WinRM username/password, the AMI instance and size in ```dc.tf```.  The ```ad_users.csv``` file includes all Domain users, groups, and OUs that attempt to get loaded into AD. 
+To customize DC, you can modify the AD domain, local Adminstrator username/password, WinRM username/password, the AMI instance and size in ```dc.tf```.  The ```ad_users.csv``` file includes all Domain users, groups, and OUs that attempt to get loaded into AD. 
 
 **Teraform Output:**
 
