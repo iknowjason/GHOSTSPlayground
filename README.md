@@ -156,9 +156,9 @@ The Elastic Linux server system includes Kibana and is built on an Ubuntu Linux 
 
 SSH into the Elastic server by looking in ```terraform output``` for this line:  
 ```
-SSH to GHOSTS
---------------
-ssh -i ssh_key.pem ubuntu@3.128.120.18
+SSH to Kibana
+-------------
+ssh -i ssh_key.pem ubuntu@3.15.19.102
 ```
 Once in the system, tail the user-data logfile.  You will see the steps from the ```code/files/ghosts/bootstrap.sh.tpl``` script running:
 ```
@@ -167,27 +167,22 @@ tail -f /var/log/user-data.log
 
 **Customize Elastic Linux Server:**
 
-To customize GHOSTS, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```ghosts.tf```.  
+To customize the Elasticsearch server, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```elastic.tf```.  
 
 **Teraform Output:**
 
-View the terraform outputs for important GHOSTS Linux access information:
+View the terraform outputs for important credentials and endpoint for Kibana access information:
 ```
-GHOSTS Grafana Console:
-----------------
-http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:3000
+-------
+Kibana Console
+-------
+https://ec2-3-15-19-102.us-east-2.compute.amazonaws.com:5601
+username: elastic
+password: Elastic2024
 
-GHOSTS Grafana Credentials:
---------------------
-admin:admin
-
-GHOSTS API Server
------------------
-http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:5000
-
-SSH to GHOSTS
---------------
-ssh -i ssh_key.pem ubuntu@3.15.227.53
+SSH to Kibana
+-------------
+ssh -i ssh_key.pem ubuntu@3.15.19.102
 ```
 
 ### Red Tools
