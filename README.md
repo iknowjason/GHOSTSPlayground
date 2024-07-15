@@ -98,18 +98,20 @@ GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ``
 
 **Troubleshooting GHOSTS Linux Server:**
 
-SSH into the Caldera server by looking in ```terraform output``` for this line:  
+SSH into the GHOSTS server by looking in ```terraform output``` for this line:  
 ```
-ssh -i ssh_key.pem ubuntu@3.15.204.148
+SSH to GHOSTS
+--------------
+ssh -i ssh_key.pem ubuntu@3.128.120.18
 ```
-Once in the system, tail the user-data logfile.  You will see the steps from the ```bootstrap.sh.tpl``` script running:
+Once in the system, tail the user-data logfile.  You will see the steps from the ```code/files/ghosts/bootstrap.sh.tpl``` script running:
 ```
 tail -f /var/log/user-data.log
 ```
 
 **Customize GHOSTS Linux Server:**
 
-To customize Caldera, you can modify the default admin credentials for red, blue and api keys in ```bas.tf```.  For other customizations, you can modify the ```local.yml.tpl``` Caldera configuration file.
+To customize GHOSTS, you can modify the default admin credentials for red, blue and api keys in ```bas.tf```.  For other customizations, you can modify the ```local.yml.tpl``` Caldera configuration file.
 
 You can create custom abilities in your project that get automatically loaded into Caldera.  This image shows a custom ability for lateral-movement that is built locally from ```files/bas/abilities/lateral-movement/```.
 
