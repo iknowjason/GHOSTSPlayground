@@ -193,16 +193,19 @@ A Windows Server 2022 AMI is built using an Amazon owned image.   Active Directo
 
 **Troubleshooting Windows DC:**
 
-SSH into the GHOSTS server by looking in ```terraform output``` for this line:  
+The DC local bootstrap script is located in ```code/files/dc/bootstrap-dc.ps1.tpl```.  RDP into the Windows system and follow this logfile to see how the system is bootstrapping.  This main script downloads and executes the ```ad_install.ps1``` script:
+
 ```
-SSH to GHOSTS
---------------
-ssh -i ssh_key.pem ubuntu@3.128.120.18
+C:\Terraform\bootstrap_log.log
 ```
-Once in the system, tail the user-data logfile.  You will see the steps from the ```code/files/ghosts/bootstrap.sh.tpl``` script running:
+
+The Active Directory and forest installation follows from ```code/files/dc/ad_install.ps1.tpl```.  Follow this logfile to see how the AD Domain is building:
+
 ```
-tail -f /var/log/user-data.log
+C:\Terraform\ad_install.log
 ```
+
+The script checks to make sure the forest has been installed with the correct input domain.  If correct, it downloads the ```ad_users.csv``` file from the S3 bucket and loads the AD objects, including AD users, Groups, and OUs.
 
 **Customize Windows DC Server:**
 
