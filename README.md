@@ -10,11 +10,11 @@ GHOSTS Security Playground is a terraform template creating a lab implementation
 * One Active Directory Domain Controller loaded with 1,000 AD users, groups, and OUs
 * One Elastic server with Kibana
 * One Windows Client (Windows Server 2022) with automated deployment of the following:
-  - Windows Client: GHOSTS version 8.0 client with customizable timeline and app configuration
+  - GHOSTS version 8.0 client with customizable timeline and app configuration
   - Atomic Red Team (ART) and  PurpleSharp
-  - Windows Client:  Sysmon with customizable config
-  - Windows Client:  Automatically sends logs to Elastic via Winlogbeat client
-  - Windows Client:  Active Directory Domain Joined
+  - Sysmon with customizable config
+  - Automatically ships logs to Elastic via Winlogbeat client
+  - Active Directory Domain Joined
 
 See the **Details** section for more information.
 
