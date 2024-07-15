@@ -134,34 +134,58 @@ SSH to GHOSTS
 ssh -i ssh_key.pem ubuntu@3.15.227.53
 ```
 
-**Caldera on Windows Client:**
-
-The Caldera sandcat agent is automatically installed and launches on the Windows client system.  The bootstrap script waits until Caldera is up and available, then installs Sandcat caldera agent.  It should look like this.
-
-To troubleshoot this, look in the following logfile on the Windows system:  
-```
-C:\Terraform\caldera_log.log
-```
-
-To modify this file locally, it is located in ```files\windows\caldera.ps1.tpl```
-
 ### Elastic 
 
-VECTR by Security Risk Advisors is installed automatically.  From their Github repo:
+**Elastic Linux Server**
 
-_VECTR is a tool that facilitates tracking of your red and blue team testing activities to measure detection and prevention capabilities across different attack scenarios_
+The Elastic Linux server system includes Kibana and is built on an Ubuntu Linux 22.04 AMI automatically using ```user-data``` feature of AWS to bootstrap the services.  The following local project files are important for customization:
 
-![VECTR](images/vectr.png "VECTR")
+| File        | Description  |
+| ------------- |:-------------:|
+| code/elastic.tf      | The terraform file that builds the Linux server |
+| code/files/elastic/bootstrap.sh.tpl | The bootstrap script. Outputsto code/output/ghosts/bootstrap.sh |
+| code/files/ghosts/dashboards.yml      | grafana dashboards config      |
+| code/files/ghosts/datasources.yml.tpl | grafana config for datasources.  Outputs to code/output/ghosts/datasources.yml      |
+| code/files/ghosts/docker-compose.yml |   ghosts docker compose    |
+| code/files/ghosts/npc.sh  |  a script loaded onto the server for localhost api commands |
+| code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely.  Outputs to code/output/ghosts/npc-ext.sh |
 
-Take a look at the terraform output to see the public URL and credentials for accessing VECTR:
+**Troubleshooting Elastic Linux Server:**
+
+SSH into the Elastic server by looking in ```terraform output``` for this line:  
 ```
-VECTR Console
--------------
-https://ec2-3-15-204-148.us-east-2.compute.amazonaws.com:8081
+SSH to GHOSTS
+--------------
+ssh -i ssh_key.pem ubuntu@3.128.120.18
+```
+Once in the system, tail the user-data logfile.  You will see the steps from the ```code/files/ghosts/bootstrap.sh.tpl``` script running:
+```
+tail -f /var/log/user-data.log
+```
 
-VECTR Credentials
+**Customize Elastic Linux Server:**
+
+To customize GHOSTS, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```ghosts.tf```.  
+
+**Teraform Output:**
+
+View the terraform outputs for important GHOSTS Linux access information:
+```
+GHOSTS Grafana Console:
+----------------
+http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:3000
+
+GHOSTS Grafana Credentials:
+--------------------
+admin:admin
+
+GHOSTS API Server
 -----------------
-admin:11_ThisIsTheFirstPassword_11
+http://ec2-3-15-227-53.us-east-2.compute.amazonaws.com:5000
+
+SSH to GHOSTS
+--------------
+ssh -i ssh_key.pem ubuntu@3.15.227.53
 ```
 
 ### Red Tools
@@ -190,6 +214,17 @@ The Windows Client system is built from ```win1.tf```.  Windows Server 2022 Data
 ```
 C:\Terraform\bootstrap_log.log
 ```
+
+**Caldera on Windows Client:**
+
+The Caldera sandcat agent is automatically installed and launches on the Windows client system.  The bootstrap script waits until Caldera is up and available, then installs Sandcat caldera agent.  It should look like this.
+
+To troubleshoot this, look in the following logfile on the Windows system:  
+```
+C:\Terraform\caldera_log.log
+```
+
+To modify this file locally, it is located in ```files\windows\caldera.ps1.tpl```
 
 **Customizing Build Scripts**
 
