@@ -144,9 +144,6 @@ Caldera API Cheat Sheet
 
 The Caldera sandcat agent is automatically installed and launches on the Windows client system.  The bootstrap script waits until Caldera is up and available, then installs Sandcat caldera agent.  It should look like this.
 
-![Caldera](images/caldera1.png "Agent View")
-
-
 To troubleshoot this, look in the following logfile on the Windows system:  
 ```
 C:\Terraform\caldera_log.log
