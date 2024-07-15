@@ -187,9 +187,9 @@ A Windows Server 2022 AMI is built using an Amazon owned image.   Active Directo
 | File        | Description  |
 | ------------- |:-------------:|
 | code/dc.tf      | The terraform file that builds the DC |
-| code/files/dc/ad_install.ps1.tpl | desc |
-| code/files/dc/bootstrap-dc.ps1.tpl      | dsc     |
-| code/ad_users.csv | desc      |
+| code/files/dc/ad_install.ps1.tpl | The powershell script that installs AD DS and Forest.  Outputs to code/output/dc/ad_install.ps1 |
+| code/files/dc/bootstrap-dc.ps1.tpl | The main powershell script for the DC that bootstraps.  Outputs to code/output/dc/bootstrap-dc1.ps1    |
+| code/ad_users.csv | The list of Active Directory users in CSV   |
 
 **Troubleshooting Windows DC:**
 
