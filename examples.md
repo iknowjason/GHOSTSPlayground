@@ -19,10 +19,10 @@
 You can edit and customize the ad_users.csv.  It is uploaded to S3 bucket and then downloaded and processed through ad_install.ps1 script on the DC.
 ![GHOSTS API](images/ghosts7.png "GHOSTS API")
 
-### Description 8
+### Kibana Server:  Showing the Symon logs
 ![GHOSTS API](images/ghosts8.png "GHOSTS API")
 
-### Description 9
+### Kibana Server:  Showing the Winlogbeat dashboard
 ![GHOSTS API](images/ghosts9.png "GHOSTS API")
 
 ### Description 10
