@@ -25,11 +25,12 @@ You can edit and customize the ad_users.csv.  It is uploaded to S3 bucket and th
 ### Kibana Server:  Showing the Winlogbeat Overview dashboard that is automatically created
 ![GHOSTS API](images/ghosts9.png "GHOSTS API")
 
+### On Win1 Client, launching ghosts.exe manually
+![GHOSTS API](images/ghosts12.png "GHOSTS API")
+
 ### Description 11
 ![GHOSTS API](images/ghosts11.png "GHOSTS API")
 
-### Description 12
-![GHOSTS API](images/ghosts12.png "GHOSTS API")
 
 ### Description 13
 ![GHOSTS API](images/ghosts5.png "GHOSTS API")
