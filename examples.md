@@ -12,9 +12,6 @@
 ### Run the npc.sh script to sync a new NPC with registered GHOSTS machines
 ![GHOSTS API](images/ghosts4.png "GHOSTS API")
 
-### Description 5
-![GHOSTS API](images/ghosts5.png "GHOSTS API")
-
 ### Description 6
 ![GHOSTS API](images/ghosts6.png "GHOSTS API")
 
@@ -35,6 +32,9 @@
 
 ### Description 12
 ![GHOSTS API](images/ghosts12.png "GHOSTS API")
+
+### Description 13
+![GHOSTS API](images/ghosts5.png "GHOSTS API")
 
 
 
