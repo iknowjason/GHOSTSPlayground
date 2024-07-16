@@ -12,7 +12,7 @@
 ### Run the npc.sh script to sync a new NPC with registered GHOSTS machines
 ![GHOSTS API](images/ghosts4.png "GHOSTS API")
 
-### Description 6
+### On the DC, showing the Domain Join of Win1 
 ![GHOSTS API](images/ghosts6.png "GHOSTS API")
 
 ### Description 7
