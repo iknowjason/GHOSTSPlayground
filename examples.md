@@ -1,6 +1,6 @@
 # Example Images
 
-### Description 1
+### GHOSTS API Server after Boot 
 ![GHOSTS API](images/ghosts1.png "GHOSTS API")
 
 ### Description 2
