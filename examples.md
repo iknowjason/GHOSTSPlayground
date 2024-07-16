@@ -32,7 +32,8 @@ You can edit and customize the ad_users.csv.  It is uploaded to S3 bucket and th
 It connects to the API server and streams its timeline logs as controlled by configuration
 ![GHOSTS API](images/ghosts11.png "GHOSTS API")
 
-### Description 13
+### A view of the GHOSTS API Server after the machine has registered
+The NPC count has incremented by 1.  The API change now synchronizes new NPC with registered machines.
 ![GHOSTS API](images/ghosts5.png "GHOSTS API")
 
 ### Description 10
