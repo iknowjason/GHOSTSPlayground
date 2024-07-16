@@ -138,6 +138,19 @@ tail -f /var/log/user-data.log
 
 To customize GHOSTS, you can modify the linux bootstrap script variables, instance size, security groups and other details in ```ghosts.tf```.  
 
+**Creating NPCs and using the API:**
+Three methods can be used to automatically add NPCs to GHOSTS using the API.  
+1. The first method is already included in the main bootstrap script.  It uses the API endpoint to generate a random NPC.  The code section is included below.
+```
+request1="http://127.0.0.1:5000/api/npcsgenerate/one"
+curl -X 'POST' \
+  "$request1" \
+  -H 'accept: application/json' \
+  -d ''
+```
+2. The second method is a script (```npc.sh```) which is deployed onto the system at /home/ubuntu/npc.sh.  You can SSH into the system and run the script against the API endpoint.  This API endpoint ensures that an NPC is created for each and every machine currentusername that exists.  So after you register the GHOSTS client agent, it will add an NPC and synch it to the machine's current username.  You can edit the script to make it different upon bootstrap at ```code/files/ghosts/npc.sh```.
+3. A script that remotely runs against the API endpoint using the public IP address of the GHOSTS server.  The templatefile is located at ```code/fils/ghosts/npc-ext.sh.tpl``` and the final output script is located at ```output/ghosts/npc-ext.sh```.  The script runs the same change mentioned in #2.
+
 **Teraform Output:**
 
 View the terraform outputs for important GHOSTS Linux access information:
@@ -353,7 +366,7 @@ The ```winlogbeat.yml.tpl``` template file deploys into ```code/output/winlogbea
 To update the version of winlogbeat, you can change the ```winlogbeat_zip``` terraform variable and update the zip file and powershell script deployment.
 
 
-### Red Tools
+### Red Tools on Windows Client
 
 On the Windows Client system, the following tools are automatically deployed into ```C:\Tools\```:
 
@@ -364,9 +377,9 @@ The local bootstrap script for customization is ```code\files\windows\red.ps1.tp
 
 To track monitoring of the deployment on the Windows Client, see the logfile at ```C:\Terraform\red_log.log```
 
-### Blue Tools
+### Sysmon on Windows Client
 
-Sysmon service and customized configuration (SwiftOnSecurity) is deployed onto the Windows Client system.  To update the sysmon version and configuration, make changes inside the ```files\sysmon``` directory.
+Sysmon service and customized configuration (SwiftOnSecurity) is deployed onto the Windows Client system.  To update the sysmon version and configuration, make changes inside the ```code\files\sysmon``` directory.
 
 The local bootstrap script for customization is ```code\files\windows\sysmon.ps1.tpl```
 
