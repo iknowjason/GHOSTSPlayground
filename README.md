@@ -72,7 +72,7 @@ The lab has been created with important terraform outputs showing services, endp
 terraform output
 ```
 
-## Estimated Cost (Just a Guess)
+## Estimated Cost
 
 As this tool spins up cloud resources, it will result in charges to your AWS account. Efforts have been made to minimize the costs incurred and research the best options for most uses cases. The best way to use this is reference the estimated cost below, check your AWS costs daily, and verify them against this information included below. Be sure to tear down all resources when not using them.  See the ```AWS Pricing Calculator```:
 
