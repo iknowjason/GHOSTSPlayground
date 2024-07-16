@@ -36,7 +36,8 @@ It connects to the API server and streams its timeline logs as controlled by con
 The NPC count has incremented by 1.  The API change now synchronizes new NPC with registered machines.
 ![GHOSTS API](images/ghosts5.png "GHOSTS API")
 
-### Description 10
+### GHOSTS Grafana dashboard after the machine has registered
+The machine starts to send timeline data showing application usage.
 ![GHOSTS API](images/ghosts10.png "GHOSTS API")
 
 
