@@ -22,7 +22,7 @@ You can edit and customize the ad_users.csv.  It is uploaded to S3 bucket and th
 ### Kibana Server:  Showing the Symon logs
 ![GHOSTS API](images/ghosts8.png "GHOSTS API")
 
-### Kibana Server:  Showing the Winlogbeat dashboard
+### Kibana Server:  Showing the Winlogbeat Overview dashboard that is automatically created
 ![GHOSTS API](images/ghosts9.png "GHOSTS API")
 
 ### Description 10
