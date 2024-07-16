@@ -9,7 +9,7 @@
 ### On Win1 Client, monitoring the bootstrap powershell script logfile
 ![GHOSTS API](images/ghosts3.png "GHOSTS API")
 
-### Description 4
+### Run the npc.sh script to sync a new NPC with registered GHOSTS machines
 ![GHOSTS API](images/ghosts4.png "GHOSTS API")
 
 ### Description 5
