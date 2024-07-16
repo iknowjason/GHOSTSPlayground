@@ -28,9 +28,9 @@ You can edit and customize the ad_users.csv.  It is uploaded to S3 bucket and th
 ### On Win1 Client, launching ghosts.exe manually
 ![GHOSTS API](images/ghosts12.png "GHOSTS API")
 
-### Description 11
+### On Win1 Client, ghosts is launching
+It connects to the API server and streams its timeline logs as controlled by configuration
 ![GHOSTS API](images/ghosts11.png "GHOSTS API")
-
 
 ### Description 13
 ![GHOSTS API](images/ghosts5.png "GHOSTS API")
