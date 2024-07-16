@@ -348,9 +348,9 @@ Winlogbeat agent automatically deploys onto this win1 system and it registers to
 | code/files/winlogbeat/winlogbeat-8.9.1-windows-x86_64.zip      | The winlogbeat zip file with config and binary |
 | code/files/winlogbeat.yml.tpl  |  Winlogbeat configuration file   |
 
-The winlogbeat.yml.tpl template file deploys into code/output/winlogbeat/winlogbeat.yml.
+The ```winlogbeat.yml.tpl``` template file deploys into ```code/output/winlogbeat/winlogbeat.yml```.
 
-To update the version of winlogbeat, you can change the winlogbeat_zip terraform variable and update the zip file and powershell script deployment.
+To update the version of winlogbeat, you can change the ```winlogbeat_zip``` terraform variable and update the zip file and powershell script deployment.
 
 
 ### Red Tools
@@ -371,6 +371,10 @@ Sysmon service and customized configuration (SwiftOnSecurity) is deployed onto t
 The local bootstrap script for customization is ```code\files\windows\sysmon.ps1.tpl```
 
 To track monitoring of the deployment on the Windows Client, see the logfile at ```C:\Terraform\blue_log.log```
+
+To update Sysmon configuration and version, see the two files that get automatically deployed on the Windows client:
+- code/files/sysmon/Sysmon.zip
+- code/files/sysmon/sysmonconfig-export.xml
 
 ### Future
 
