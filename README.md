@@ -340,7 +340,17 @@ cd C:\Tools\ghosts\ghosts-client-x64-v8.0.0 (Elevated cmd.exe)
 
 **Elastic Winlogbeat on Windows Client:**
 
-The GHOSTS Windows client automatically deploys onto this win1 system.  The important files that can be used for customization include:
+Winlogbeat agent automatically deploys onto this win1 system and it registers to the Elastic Search server.  This can be customized.  The important files that can be used for customization include:
+
+| File        | Description  |
+| ------------- |:-------------:|
+| code/files/winlogbeat.tf    |  The winlogbeat terraform file  |
+| code/files/winlogbeat/winlogbeat-8.9.1-windows-x86_64.zip      | The winlogbeat zip file with config and binary |
+| code/files/winlogbeat.yml.tpl  |  Winlogbeat configuration file   |
+
+The winlogbeat.yml.tpl template file deploys into code/output/winlogbeat/winlogbeat.yml.
+
+To update the version of winlogbeat, you can change the winlogbeat_zip terraform variable and update the zip file and powershell script deployment.
 
 
 ### Red Tools
@@ -350,7 +360,7 @@ On the Windows Client system, the following tools are automatically deployed int
 * Atomic Red Team (ART)
 * PurpleSharp
 
-The local bootstrap script for customization is ```files\windows\red.ps1.tpl```
+The local bootstrap script for customization is ```code\files\windows\red.ps1.tpl```
 
 To track monitoring of the deployment on the Windows Client, see the logfile at ```C:\Terraform\red_log.log```
 
@@ -358,7 +368,7 @@ To track monitoring of the deployment on the Windows Client, see the logfile at 
 
 Sysmon service and customized configuration (SwiftOnSecurity) is deployed onto the Windows Client system.  To update the sysmon version and configuration, make changes inside the ```files\sysmon``` directory.
 
-The local bootstrap script for customization is ```files\windows\sysmon.ps1.tpl```
+The local bootstrap script for customization is ```code\files\windows\sysmon.ps1.tpl```
 
 To track monitoring of the deployment on the Windows Client, see the logfile at ```C:\Terraform\blue_log.log```
 
