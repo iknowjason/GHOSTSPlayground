@@ -15,7 +15,8 @@
 ### On the DC, showing the Domain Join of Win1 
 ![GHOSTS API](images/ghosts6.png "GHOSTS API")
 
-### Description 7
+### On the DC, the ad_users.csv loads all Domain Users, OUs, and Groups.  This shows the Engineering OU and one of the users who is added through ad_users.csv
+You can edit and customize the ad_users.csv.  It is uploaded to S3 bucket and then downloaded and processed through ad_install.ps1 script on the DC.
 ![GHOSTS API](images/ghosts7.png "GHOSTS API")
 
 ### Description 8
