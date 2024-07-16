@@ -121,6 +121,13 @@ GHOSTS Linux server is built on an Ubuntu Linux 22.04 AMI automatically using ``
 | code/files/ghosts/npc-ext.sh.tpl |   a script to run api commands remotely.  | code/output/ghosts/npc-ext.sh |
 | code/s3-ghosts.tf | Uploads some of the ghosts linux files to s3 bucket |   |
 
+**Playing with GHOSTS:**
+* After the Linux system boots, navigate to the GHOSTS APIServer and Grafana server endpoints by looking at ```terraform output```.
+* Wait for the Windows client to do a Domain Join, and then start up the ghosts.exe using an Administrator cmd.exe
+* Monitor the Grafana custom dashboard for timeline events
+* Login to Kibana using terraform outputs and monitor events
+* Run the npc.sh or external script to synch NPCs with machine current username
+
 **Troubleshooting GHOSTS Linux Server:**
 
 SSH into the GHOSTS server by looking in ```terraform output``` for this line:  
