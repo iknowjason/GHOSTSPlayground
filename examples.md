@@ -6,7 +6,7 @@
 ### GHOSTS Grafana Dashboard after boot
 ![GHOSTS API](images/ghosts2.png "GHOSTS API")
 
-### Description 3
+### On Win1 Client, monitoring the bootstrap powershell script logfile
 ![GHOSTS API](images/ghosts3.png "GHOSTS API")
 
 ### Description 4
