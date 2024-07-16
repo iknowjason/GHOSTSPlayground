@@ -305,6 +305,13 @@ The main bootstrap.ps1 script downloads each of the individual bootstrap script 
 
 For adding new scripts for a customized deployment, reference the arrays in ```scripts.tf``` and ```s3.tf```.  For more complex deployments, the Windows system is built to have flexibility for adding customized scripts for post-deployment configuration management.  This gets around the size limit of user-data not exceeding 16KB in size.  The s3 bucket is used for staging to upload and download scripts, files, and any artifacts needed.  How this is done:  A small master script is always deployed via user-data (```bootstrap-win.ps1```).  This script has instructions to download additional scripts.  This is under your control and is configured in ```scripts.tf``` and ```s3.tf```.  In ```scripts.tf```, take a look at the array called ```templatefiles```.  Add any custom terraform templatefiles here and then add them locally to ```files/windows```.  See the ```red.ps1.tpl``` and ```sysmon.ps1.tpl``` files as an example.  The file should end in ```tpl```.  This template file is generated as output into the directory called ```output```.  The terraform code strips off the ```.tpl``` in the filename when it generates into the ```output``` directory.  Make sure the filename is correct because the master script downloads based on this name.  In ```s3.tf```, each little script referenced in ```templatefiles_win``` is uploaded.  The master bootstrap script has a reference to this array.  It will automatically download all generated scripts from the ```templatefiles_win``` array and execute each script.
 
+**Customizing timeline.json**
+The application execution of NPC behavior can be customized in the ```code/files/ghosts/timeline.json.tpl```.  Ensure that you have installed each tool that runs automtically through the timeline execution.  Any error can cause the ghosts client to hang and not send any logs.  The following applications are pre-installed via chocolately windows package manager.  They can be customized in ```code/files/ghosts/ghosts-client-bootstrap.ps1.tpl```.
+
+- Microsoft office
+- Chrome
+- Firefox
+
 **Terraform Outputs**
 
 See the output from ```terraform output``` to get the IP address and credentials for RDP:
