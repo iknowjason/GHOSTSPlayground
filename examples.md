@@ -10,7 +10,12 @@
 ![GHOSTS API](images/ghosts3.png "GHOSTS API")
 
 ### Run the npc.sh script to sync a new NPC with registered GHOSTS machines
+SSH into the GHOSTS Linux server and run the script: ```/home/ubuntu/npc.sh```
 ![GHOSTS API](images/ghosts4.png "GHOSTS API")
+
+### Run the remote npc.sh script to sync a new NPC with registered GHOSTS machines
+Run the rendered script from the output directory.  This script makes an API connection to the remote public IP address of GHOSTS machine.
+![GHOSTS API](images/ghosts14.png "GHOSTS API")
 
 ### On the DC, showing the Domain Join of Win1 
 ![GHOSTS API](images/ghosts6.png "GHOSTS API")
