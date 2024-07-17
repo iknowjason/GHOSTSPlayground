@@ -19,7 +19,7 @@ GHOSTS Security Playground is a terraform template creating a lab implementation
 See the **Details** section for more information.
 
 ## Screen Shots
-[Some example screen shots.](examples.md)
+[Some examples.](examples.md)
 
 ## Requirements and Setup
 
